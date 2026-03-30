@@ -1,0 +1,55 @@
+{
+  "total": 639,
+  "paraphrased_success": 114,
+  "paraphrased_failed": 572,
+  "original_detected": 583,
+  "paraphrased_detected": 582,
+  "both_detected": 564,
+  "neither_detected": 38,
+  "retention_rate": 99.82847341337907,
+  "per_category": {
+    "DEC": {
+      "orig": 74,
+      "para": 71,
+      "both": 59,
+      "neither": 16,
+      "total": 102
+    },
+    "INV": {
+      "orig": 108,
+      "para": 108,
+      "both": 108,
+      "neither": 0,
+      "total": 108
+    },
+    "RES": {
+      "orig": 84,
+      "para": 87,
+      "both": 83,
+      "neither": 14,
+      "total": 102
+    },
+    "SEC": {
+      "orig": 102,
+      "para": 100,
+      "both": 100,
+      "neither": 0,
+      "total": 102
+    },
+    "TST": {
+      "orig": 107,
+      "para": 107,
+      "both": 107,
+      "neither": 4,
+      "total": 111
+    },
+    "UFO": {
+      "orig": 108,
+      "para": 109,
+      "both": 107,
+      "neither": 4,
+      "total": 114
+    }
+  },
+  "cost": 0.5747043000000016
+}

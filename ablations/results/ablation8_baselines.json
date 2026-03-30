@@ -1,0 +1,63 @@
+{
+  "random_baseline": {
+    "mean_eir": 0.5517652582159623,
+    "std_eir": 0.01811013659446017,
+    "min_eir": 0.49295774647887325,
+    "max_eir": 0.6087636932707355,
+    "n_runs": 1000
+  },
+  "analytical_baseline": {
+    "analytical_eir": 0.5513720340985272,
+    "std_across_trajs": 0.20350456608107592,
+    "n_trajs": 639
+  },
+  "always_first_baseline": {
+    "eir": 1.0,
+    "n": 639
+  },
+  "majority_class_baseline": {
+    "eir": 0.0,
+    "recall": 0.0,
+    "fpr": 0.0
+  },
+  "per_category_random": {
+    "DEC": {
+      "mean_eir": 0.6132745098039215,
+      "std_eir": 0.04157959067415799,
+      "n_trajs": 102
+    },
+    "INV": {
+      "mean_eir": 0.46835185185185185,
+      "std_eir": 0.044236857029972876,
+      "n_trajs": 108
+    },
+    "RES": {
+      "mean_eir": 0.5742843137254902,
+      "std_eir": 0.043521098614418274,
+      "n_trajs": 102
+    },
+    "SEC": {
+      "mean_eir": 0.5171274509803921,
+      "std_eir": 0.045133182172607325,
+      "n_trajs": 102
+    },
+    "TST": {
+      "mean_eir": 0.5858288288288288,
+      "std_eir": 0.04344759429711804,
+      "n_trajs": 111
+    },
+    "UFO": {
+      "mean_eir": 0.5476052631578948,
+      "std_eir": 0.043000954665975595,
+      "n_trajs": 114
+    }
+  },
+  "trajectory_stats": {
+    "mean_length": 12.630672926447575,
+    "std_length": 4.006809307968759,
+    "mean_gt_step": 6.771517996870109,
+    "std_gt_step": 3.3188987057461072,
+    "mean_gt_ratio": 0.5513720340985272,
+    "std_gt_ratio": 0.20350456608107592
+  }
+}
