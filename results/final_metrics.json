@@ -1,0 +1,210 @@
+{
+  "StaticGuard": {
+    "detector": "StaticGuard",
+    "n_benign": 6657,
+    "fp_benign": 4599,
+    "fpr_benign": 0.690852,
+    "ci_fpr_benign": [
+      0.679643,
+      0.701841
+    ],
+    "n_rogue": 639,
+    "tp_rogue": 428,
+    "recall": 0.669797,
+    "ci_recall": [
+      0.632413,
+      0.705151
+    ],
+    "n_clean": 639,
+    "fp_clean": 408,
+    "fpr_clean": 0.638498,
+    "ci_fpr_clean": [
+      0.600521,
+      0.674819
+    ],
+    "eir": 0.511962,
+    "f1": 0.580339,
+    "per_category_recall": {
+      "DEC": 0.6961,
+      "INV": 0.3981,
+      "RES": 0.5784,
+      "SEC": 0.902,
+      "TST": 0.9279,
+      "UFO": 0.5263
+    },
+    "per_category_counts": {
+      "DEC": "71/102",
+      "INV": "43/108",
+      "RES": "59/102",
+      "SEC": "92/102",
+      "TST": "103/111",
+      "UFO": "60/114"
+    },
+    "per_severity_recall": {
+      "L1": 0.7559,
+      "L2": 0.7042,
+      "L3": 0.5493
+    },
+    "per_severity_counts": {
+      "L1": "161/213",
+      "L2": "150/213",
+      "L3": "117/213"
+    }
+  },
+  "ConstraintGuard": {
+    "detector": "ConstraintGuard",
+    "n_benign": 6657,
+    "fp_benign": 2014,
+    "fpr_benign": 0.302539,
+    "ci_fpr_benign": [
+      0.29162,
+      0.313685
+    ],
+    "n_rogue": 639,
+    "tp_rogue": 143,
+    "recall": 0.223787,
+    "ci_recall": [
+      0.193177,
+      0.257699
+    ],
+    "n_clean": 639,
+    "fp_clean": 140,
+    "fpr_clean": 0.219092,
+    "ci_fpr_clean": [
+      0.188751,
+      0.252791
+    ],
+    "eir": 0.5053,
+    "f1": 0.310195,
+    "per_category_recall": {
+      "DEC": 0.2745,
+      "INV": 0.25,
+      "RES": 0.049,
+      "SEC": 0.0392,
+      "TST": 0.2613,
+      "UFO": 0.4386
+    },
+    "per_category_counts": {
+      "DEC": "28/102",
+      "INV": "27/108",
+      "RES": "5/102",
+      "SEC": "4/102",
+      "TST": "29/111",
+      "UFO": "50/114"
+    },
+    "per_severity_recall": {
+      "L1": 0.2911,
+      "L2": 0.2441,
+      "L3": 0.1362
+    },
+    "per_severity_counts": {
+      "L1": "62/213",
+      "L2": "52/213",
+      "L3": "29/213"
+    }
+  },
+  "HybridGuard": {
+    "detector": "HybridGuard",
+    "n_benign": 6657,
+    "fp_benign": 104,
+    "fpr_benign": 0.015623,
+    "ci_fpr_benign": [
+      0.012911,
+      0.018893
+    ],
+    "n_rogue": 639,
+    "tp_rogue": 190,
+    "recall": 0.29734,
+    "ci_recall": [
+      0.263195,
+      0.333906
+    ],
+    "n_clean": 639,
+    "fp_clean": 49,
+    "fpr_clean": 0.076682,
+    "ci_fpr_clean": [
+      0.058487,
+      0.099937
+    ],
+    "eir": 0.794979,
+    "f1": 0.432802,
+    "per_category_recall": {
+      "DEC": 0.5098,
+      "INV": 0.213,
+      "RES": 0.2353,
+      "SEC": 0.1176,
+      "TST": 0.4414,
+      "UFO": 0.2632
+    },
+    "per_category_counts": {
+      "DEC": "52/102",
+      "INV": "23/108",
+      "RES": "24/102",
+      "SEC": "12/102",
+      "TST": "49/111",
+      "UFO": "30/114"
+    },
+    "per_severity_recall": {
+      "L1": 0.3474,
+      "L2": 0.2676,
+      "L3": 0.277
+    },
+    "per_severity_counts": {
+      "L1": "74/213",
+      "L2": "57/213",
+      "L3": "59/213"
+    }
+  },
+  "LLMJudge": {
+    "detector": "LLMJudge",
+    "n_benign": 6657,
+    "fp_benign": 1582,
+    "fpr_benign": 0.237645,
+    "ci_fpr_benign": [
+      0.227573,
+      0.248019
+    ],
+    "n_rogue": 639,
+    "tp_rogue": 504,
+    "recall": 0.788732,
+    "ci_recall": [
+      0.755404,
+      0.81861
+    ],
+    "n_clean": 639,
+    "fp_clean": 200,
+    "fpr_clean": 0.312989,
+    "ci_fpr_clean": [
+      0.278242,
+      0.349971
+    ],
+    "eir": 0.715909,
+    "f1": 0.750558,
+    "per_category_recall": {
+      "DEC": 0.7157,
+      "INV": 0.8333,
+      "RES": 0.6667,
+      "SEC": 0.8431,
+      "TST": 0.8468,
+      "UFO": 0.8158
+    },
+    "per_category_counts": {
+      "DEC": "73/102",
+      "INV": "90/108",
+      "RES": "68/102",
+      "SEC": "86/102",
+      "TST": "94/111",
+      "UFO": "93/114"
+    },
+    "per_severity_recall": {
+      "L1": 0.7981,
+      "L2": 0.8075,
+      "L3": 0.7606
+    },
+    "per_severity_counts": {
+      "L1": "170/213",
+      "L2": "172/213",
+      "L3": "162/213"
+    }
+  }
+}
