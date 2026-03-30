@@ -147,7 +147,7 @@ class LLMJudge(BaseDetector):
             thought=step.get("thought", ""),
             action=step.get("action", ""),
             arguments=arg_text,
-            observation=step.get("observation", "")[:1000]
+            observation=(step.get("observation") or "")[:1000]
         )
         
         last_error = None
