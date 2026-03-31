@@ -1,4 +1,4 @@
-\begin{thebibliography}{41}
+\begin{thebibliography}{40}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -93,14 +93,6 @@ Keles, F.~D., Wijewardena, P.~M., and Hegde, C.
 Krakovna, V. et~al.
 \newblock Specification gaming: the flip side of {AI} ingenuity.
 \newblock \emph{DeepMind Blog}, 2020.
-
-\bibitem[Kutasov et~al.(2025)Kutasov, Sun, Colognese, van~der Weij, Petrini,
-  Zhang, Hughes, Deng, Sleight, Tracy, Shlegeris, and Benton]{kutasov2025shade}
-Kutasov, J., Sun, Y., Colognese, P., van~der Weij, T., Petrini, L., Zhang, C.
-  B.~C., Hughes, J., Deng, X., Sleight, H., Tracy, T., Shlegeris, B., and
-  Benton, J.
-\newblock {SHADE-Arena}: Evaluating sabotage and monitoring in {LLM} agents.
-\newblock \emph{arXiv preprint arXiv:2506.15740}, 2025.
 
 \bibitem[Leucker \& Schallhart(2009)Leucker and Schallhart]{leucker2009runtime}
 Leucker, M. and Schallhart, C.
