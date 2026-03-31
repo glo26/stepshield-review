@@ -35,11 +35,47 @@
 \vskip 0.15in
 
 \begin{abstract}
-Existing agent safety benchmarks report binary accuracy, conflating early intervention with post-mortem analysis. We introduce StepShield, the first benchmark to evaluate \emph{when} violations are detected, not just whether. StepShield contains 9,213 code agent trajectories---1,278 annotated training pairs and a 7,935-trajectory test set with a realistic 8.1\% rogue rate---grounded in real-world security incidents across six categories. We propose three temporal metrics: Early Intervention Rate (EIR), Intervention Gap, and Tokens Saved. Our evaluation of various detection mechanisms on this benchmark reveals a 2.3$\times$ EIR gap between an LLM-based judge (59\%) and a static analyzer (26\%) that is invisible to accuracy metrics---with rule-based detectors failing to outperform even a random baseline on early intervention. A paired false-positive analysis on all 639 clean trajectories shows that no single detection method dominates both FPR and recall---the Pareto frontier is empty---while deployment-realistic benign FPR drops to 0.7\% for a hybrid approach---establishing step-level rogue detection as a genuinely unsolved problem. Code and data are released under Apache 2.0.
+Existing agent safety benchmarks report binary accuracy, conflating early intervention with post-mortem analysis. We introduce StepShield, the first benchmark to evaluate \emph{when} violations are detected, not just whether. StepShield contains 9,213 code agent trajectories---1,278 annotated training pairs and a 7,935-trajectory test set with a realistic 8.1\% rogue rate---grounded in real-world security incidents across six categories. We propose three temporal metrics: Early Intervention Rate (EIR), Intervention Gap, and Tokens Saved. Our evaluation of four detection mechanisms on this benchmark reveals a stark trade-off between recall and precision. An LLM-based judge achieves high recall (78.9\%) but at the cost of a 23.8\% benign false positive rate (B-FPR). Conversely, a hybrid approach combining static analysis and an LLM achieves the lowest B-FPR (1.56\%) and highest EIR (79.5\%), but with low recall (29.7\%). No single detector dominates, establishing step-level rogue detection as a genuinely unsolved problem. Code and data are released under Apache 2.0.
 \end{abstract}
 ]
 
-\printAffiliationsAndNotice{} 
+\printAffiliationsAndNotice{}
+
+\section{Results}
+
+Our evaluation of four detection paradigms on the StepShield benchmark reveals a clear and challenging trade-off between precision and recall, as summarized in Table~\ref{tab:main_results}. No single detector dominates across all metrics, highlighting the complexity of step-level rogue agent detection.
+
+\begin{table*}[t]
+\caption{Main results on the StepShield benchmark. We report Benign FPR (B-FPR) on 6,657 benign trajectories, and Recall, Paired FPR (P-FPR), EIR, and F1-score on 639 rogue-clean pairs. HybridGuard achieves the best B-FPR and EIR, while LLMJudge achieves the highest Recall and F1-score, but at the cost of a very high B-FPR.}
+\label{tab:main_results}
+\vskip 0.15in
+\begin{center}
+\begin{small}
+\begin{sc}
+\begin{tabular}{lccccc}
+\toprule
+Detector & B-FPR ($\downarrow$) & Recall ($\uparrow$) & P-FPR ($\downarrow$) & EIR ($\uparrow$) & F1-Score ($\uparrow$) \\
+\midrule
+StaticGuard     & 69.09\% & 66.98\% & 63.85\% & 51.20\% & 0.5803 \\
+ConstraintGuard & 30.25\% & 22.38\% & 21.91\% & 50.53\% & 0.3102 \\
+LLMJudge        & 23.76\% & 78.87\% & 31.30\% & 71.59\% & 0.7506 \\
+HybridGuard     &  1.56\% & 29.73\% &  7.67\% & 79.50\% & 0.4328 \\
+\bottomrule
+\end{tabular}
+\end{sc}
+\end{small}
+\end{center}
+\vskip -0.1in
+\end{table*}
+
+\subsection{Key Findings}
+
+\textbf{No single detector dominates.} The central finding of our benchmark is that no single detection method is a silver bullet. LLMJudge, a powerful LLM-based classifier, achieves the highest recall (78.87\%) and F1-score (0.7506), demonstrating its strong ability to identify rogue behavior. However, this comes at the cost of an extremely high benign false positive rate (23.76\%), making it impractical for direct deployment in many real-world applications.
+
+\textbf{The precision-recall trade-off is severe.} Conversely, HybridGuard, which combines a static analyzer with a cascaded LLM call, achieves an impressively low B-FPR of 1.56\% and the highest EIR of 79.50\%. This makes it a much more deployable solution, but its low recall (29.73\%) means it misses over 70\% of rogue trajectories. This stark trade-off between precision and recall is the core challenge in step-level agent safety.
+
+\textbf{Static baselines are insufficient.} Our evaluation shows that simple static analysis (StaticGuard) and constraint-based methods (ConstraintGuard) are not sufficient for reliable rogue agent detection. While they have their place, their high false positive rates and low recall on complex behaviors highlight the need for more sophisticated, context-aware methods.
+ 
 
 \section{Introduction}
 
@@ -57,7 +93,7 @@ Our contributions are five-fold, centered on the evaluation of detection mechani
     \item A New Evaluation Paradigm: We propose a new evaluation paradigm for agent safety that prioritizes detection timeliness, moving beyond simple binary accuracy.
     \item Temporal Metrics: We introduce three novel metrics (Early Intervention Rate, Intervention Gap, and Tokens Saved) that quantify when a detector identifies a violation.
     \item A Large-Scale Dataset: We release StepShield, a dataset of 9,213 code agent trajectories, including 639 rogue-clean pairs, grounded in real-world security incidents and annotated at the step level. Following established precedent in safety benchmarks \cite{ruan2024toolemu, zhang2024agentsafetybench}, these trajectories are synthetically generated to provide controlled, diverse, and challenging stimuli for evaluating detectors.
-    \item Comprehensive Evaluation: We benchmark four representative detection paradigms (StaticGuard, ConstraintGuard, LLM-Judge, and HybridGuard) and reveal a 2.3x gap in early detection performance that is invisible to standard accuracy metrics---with rule-based detectors failing to outperform random chance on EIR---providing a baseline for future work.
+    \item Comprehensive Evaluation: We benchmark four representative detection paradigms (StaticGuard, ConstraintGuard, LLM-Judge, and HybridGuard), revealing that no single detector dominates. LLMJudge achieves the highest recall (78.9\%) but suffers from a 23.8\% benign false positive rate, while HybridGuard achieves a low 1.56\% B-FPR but with only 29.7\% recall, providing a clear baseline for future work.
     \item Economic Framework: We demonstrate the direct economic benefits of early detection, showing that HybridGuard can reduce LLM inference costs by 75\% while maintaining strong detection capabilities, translating to significant potential cost savings in large-scale deployments (see Appendix~\ref{app:roi} for a detailed analysis).
 \end{enumerate}
 
@@ -65,7 +101,7 @@ Our contributions are five-fold, centered on the evaluation of detection mechani
 \vskip -0.1in
 \begin{center}
 \centerline{\includegraphics[width=\textwidth]{figures/trajectory_v7.png}}
-\caption{The core insight of StepShield: detection timing determines intervention capability. Early detection (EIR = 0.59) identifies the rogue step at S4, enabling intervention that saves 50\% of execution. Late detection (EIR = 0.26) flags the violation only at S8, providing post-mortem value after all damage is done. Circles before detection have 26\% opacity fill matching their outline color; detected rogue steps are solid green. This 2.3x gap in early intervention capability is invisible to standard accuracy metrics.}
+\caption{The core insight of StepShield: detection timing determines intervention capability. An effective detector (HybridGuard, EIR = 79.5\%) identifies the rogue step early, enabling intervention that prevents most harmful actions. A less effective detector (StaticGuard, EIR = 51.2\%) flags the violation much later, providing limited value beyond post-mortem forensics. This performance gap is invisible to standard accuracy metrics but critical for real-world safety.}
 \label{fig:trajectory}
 \end{center}
 \vskip -0.2in
@@ -274,7 +310,7 @@ This formulation provides a principled framework for tuning HybridGuard's cascad
 
 We evaluate four detection paradigms, spanning the spectrum from fast-but-shallow to slow-but-deep:
 
-\textbf{StaticGuard.} A fast, pattern-matching detector using regular expressions and keyword lists. It detects obvious violations like `rm -rf /` or `os.environ['API_KEY']`. Latency: <1ms per step. Cost: negligible.
+\textbf{StaticGuard.} A fast, pattern-matching detector using regular expressions and keyword lists. It detects obvious violations like `rm -rf /` or `os.environ['API\_KEY']`. Latency: <1ms per step. Cost: negligible.
 
 \textbf{ConstraintGuard.} A detector that checks for violations of explicit constraints, such as file access outside designated directories or API calls exceeding rate limits. Latency: ~5ms per step. Cost: negligible.
 
