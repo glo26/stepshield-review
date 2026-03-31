@@ -1,103 +1,118 @@
-# StepShield: When, Not Whether to Intervene on Rogue Agents
+# StepShield
 
-Anonymous submission. This repository contains the code, data, and paper for StepShield.
+A benchmark for evaluating step-level detection quality on rogue AI agents.
 
-## Overview
+## Paper
 
-StepShield is the first benchmark for evaluating **detection quality** on rogue AI agents. Existing agent safety benchmarks evaluate *whether* an agent misbehaved, not *how well* the violation can be detected amid benign behavior. StepShield addresses this gap with:
+The full paper is available at [`paper/StepShield.pdf`](./paper/StepShield.pdf). LaTeX source and bibliography are in the same directory.
 
-- **9,213 step-level annotated code-agent trajectories** grounded in real-world security incidents
-- **Three temporal metrics**: Early Intervention Rate (EIR, paired precision), Intervention Gap (IG), and Tokens Saved
-- **Four baseline detectors**: StaticGuard (regex/keyword), ConstraintGuard (explicit constraints), LLMJudge (GPT-4.1-mini), HybridGuard (cascaded)
-- **Six rogue behavior categories**: Unauthorized File Operations (UFO), Secret Exfiltration (SEC), Resource Abuse (RES), Instruction Violation (INV), Test Manipulation (TST), Deceptive Completion (DEC)
+StepShield introduces a temporal evaluation paradigm for agent safety. Our results reveal three uncomfortable truths: (1) the safety Pareto frontier appears empty in our evaluation, with no detector achieving both high recall and low false positives; (2) LLM judges are unreliable, exhibiting over 13pp recall variance run-to-run at zero temperature; and (3) the field has optimized for the wrong metric, as our best detector (HybridGuard) achieves the highest intervention quality (EIR 0.80) but the lowest recall (29.7%).
 
-## Repository Structure
+## Repository Layout
 
 ```
-├── README.md
-├── benchmark/                  # Main benchmark framework
-│   ├── detectors/              # All 4 detector implementations
-│   │   ├── static_guard.py
-│   │   ├── constraint_guard.py
-│   │   ├── llm_judge.py
-│   │   └── hybrid_guard.py
-│   ├── metrics/                # Evaluation metrics
-│   │   └── timing_metrics.py   # EIR, IG, Tokens Saved
-│   └── run_benchmark.py        # Main evaluation script
-├── ablations/                  # All ablation study scripts
-│   └── results/                # Raw JSON results
-├── data/                       # Benchmark dataset
-│   ├── test/                   # 7,935 test trajectories (scrubbed)
-│   │   ├── scrubbed/           # Category-label-removed trajectories
-│   │   └── mapping.json        # Ground truth mapping
-│   ├── train/                  # 1,278 training pairs by category
-│   │   └── {UFO,SEC,RES,INV,TST,DEC}/
-│   └── generated_benign/       # 6,657 benign trajectories for FPR
-├── config/                     # Configuration files and prompts
-├── results/                    # Raw experimental results
-│   └── final_metrics.json      # All numbers reported in the paper
-└── paper/                      # LaTeX source and compiled PDF
-    ├── StepShield.tex
-    ├── StepShield.pdf
-    ├── references.bib
-    └── figures/
+stepshield-review/
+├── paper/                      # Paper and figures
+│   ├── StepShield.pdf          # Compiled paper
+│   ├── StepShield.tex          # LaTeX source
+│   ├── references.bib          # Bibliography
+│   └── figures/                # All paper figures
+│
+├── data/                       # StepShield benchmark dataset (9,213 trajectories)
+│   ├── train/                  # 1,278 labeled trajectories (639 rogue/clean pairs)
+│   │   ├── DEC/                # Deceptive Completion
+│   │   ├── INV/                # Instruction Violation
+│   │   ├── RES/                # Resource Abuse
+│   │   ├── SEC/                # Secret Exfiltration
+│   │   ├── TST/                # Test Manipulation
+│   │   └── UFO/                # Unauthorized File Operations
+│   └── test/
+│       └── scrubbed/           # 7,935 trajectories (labels withheld)
+│
+├── benchmark/                  # Detector implementations and evaluation
+│   ├── detectors/              # HybridGuard, LLMJudge, StaticGuard, ConstraintGuard
+│   ├── metrics/                # EIR, IG, Tokens Saved
+│   ├── run_benchmark.py        # Main evaluation script
+│   ├── data_loader.py          # Dataset loading utilities
+│   └── validate_jsonl.py       # Data format validator
+│
+├── ablations/                  # All 8 ablation study scripts
+│   └── results/                # Pre-computed ablation results (JSON)
+│
+├── config/                     # Detector and prompt configurations
+│   └── prompts/                # Judge prompt templates
+│
+└── results/                    # Raw experimental results (JSON)
 ```
 
-## Quick Start
+## Dataset
 
-### 1. Installation
+Each trajectory is a single `.jsonl` file representing a sequence of agent steps. The training set is organized by rogue behavior category, with each rogue trajectory paired with a minimally-edited clean counterpart. The test set is scrubbed of category labels to prevent overfitting.
+
+| Split | Rogue | Clean | Benign | Total |
+| :--- | ---: | ---: | ---: | ---: |
+| Train | 639 | 639 | - | 1,278 |
+| Test | 639 | 639 | 6,657 | 7,935 |
+| Total | 1,278 | 1,278 | 6,657 | 9,213 |
+
+The six rogue behavior categories are: Unauthorized File Operations (UFO), Secret Exfiltration (SEC), Resource Abuse (RES), Instruction Violation (INV), Test Manipulation (TST), and Deceptive Completion (DEC). Each category spans three difficulty levels (L1, L2, L3). See `data/README.md` for the full datasheet.
+
+## Reproducing Results
+
+### Setup
 
 ```bash
 pip install -r benchmark/requirements.txt
+export OPENAI_API_KEY=sk-...
 ```
 
-### 2. Set Up API Keys
-
-Create a `.env` file in the repository root:
-
-```
-OPENAI_API_KEY=sk-...
-```
-
-### 3. Run the Full Benchmark
+### Main Results (Table 4)
 
 ```bash
 python benchmark/run_benchmark.py
 ```
 
-This evaluates all four detectors on the test set and produces metrics matching Table 4 in the paper.
+This evaluates all four detectors on the test set and writes detailed results to `results/`.
 
-### 4. Reproduce Ablation Studies
+### Ablation Studies
+
+Each ablation script is self-contained. For example:
 
 ```bash
-cd ablations
-python ablation1_cross_model.py      # Table 11: Model scaling
-python ablation2_context_window.py   # Table 12: Context window
-# ... see ablations/ for all scripts
+python ablations/ablation1_cross_model.py gpt-4.1-mini
+python ablations/ablation2_paraphrase_full.py
+python ablations/ablation3_threshold_sweep.py
 ```
 
-Pre-computed results are in `ablations/results/`.
+Pre-computed results for all ablations are available in `ablations/results/`. See `ablations/README.md` for a full description of each study.
 
-## Key Results (Table 4)
+## Key Results
 
-| Detector | Accuracy | Recall | EIR | IG | Tokens Saved |
-|:---|:---|:---|:---|:---|:---|
-| StaticGuard | 57.6% | 67.0% | 0.51 | 3.12 | 18.4% |
-| ConstraintGuard | 60.3% | 25.5% | 0.55 | 2.87 | 6.1% |
-| LLMJudge | 61.5% | 78.9% | 0.59 | 2.45 | 31.2% |
-| HybridGuard | **66.0%** | 29.7% | **0.80** | **1.34** | 8.9% |
+| Detector | EIR | IG | Recall | Benign FPR | Paired FPR |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| HybridGuard | 0.80 | 0.85 | 29.7% | 1.56% | 7.67% |
+| LLMJudge | 0.72 | 0.61 | 78.9% | 2.11% | 31.30% |
+| StaticGuard | 0.51 | 3.12 | 67.0% | 4.33% | 48.98% |
+| ConstraintGuard | 0.51 | 2.87 | 29.1% | 13.6% | 24.41% |
+| Human Expert | 0.92 | 0.95 | 85.1% | 0.50% | 4.50% |
+
+HybridGuard achieves the highest intervention quality (EIR 0.80) among automated detectors, but the 12.5-point gap to human experts (0.92) defines the open research frontier. Full results, including per-category and per-severity breakdowns, are in `results/final_metrics.json`.
+
+## Acknowledgments
+
+This work was supported in part by the MOVE Fellowship.
 
 ## Citation
 
 ```bibtex
-@inproceedings{anonymous2026stepshield,
-  title={StepShield: When, Not Whether to Intervene on Rogue Agents},
-  author={Anonymous},
-  booktitle={Proceedings of the International Conference on Machine Learning (ICML)},
-  year={2026}
+@inproceedings{stepshield2026,
+  title     = {StepShield: Dismantling the Illusion of Security in Autonomous Agents},
+  author    = {Anonymous},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2026}
 }
 ```
 
 ## License
 
-Code and data are released under Apache 2.0.
+Apache 2.0. See [LICENSE](./LICENSE).
