@@ -1,4 +1,4 @@
-\begin{thebibliography}{40}
+\begin{thebibliography}{39}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -39,12 +39,6 @@ Chen, Z., Kang, M., and Li, B.
 Deng, Z., Shi, T., et~al.
 \newblock {PolyGuard}: A multilingual safety moderation tool for 17 languages.
 \newblock \emph{arXiv preprint arXiv:2506.19054}, 2025.
-
-\bibitem[{Fortune Staff}(2025)]{fortune2025replit}
-{Fortune Staff}.
-\newblock {AI} coding tool wiped our database, says startup in catastrophic
-  failure.
-\newblock Fortune, July 2025.
 
 \bibitem[Han et~al.(2024)Han, Kim, Shin, Hwang, Lee, Kim, Back, Kim, Shin, Cho,
   et~al.]{han2024wildguard}
