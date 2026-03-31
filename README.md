@@ -1,72 +1,103 @@
-# StepShield: A Comprehensive Benchmark for Step-Level Agent Intervention
+# StepShield: When, Not Whether to Intervene on Rogue Agents
 
-This repository contains the official code and data for the ICML 2026 submission, "StepShield: A Comprehensive Benchmark for Step-Level Agent Intervention."
+Anonymous submission. This repository contains the code, data, and paper for StepShield.
 
 ## Overview
 
-StepShield is a benchmark designed to evaluate the effectiveness of intervention mechanisms in language agent systems. It provides a comprehensive framework for assessing the ability of detectors to identify and mitigate harmful or undesirable agent behaviors at the step level.
+StepShield is the first benchmark for evaluating **detection quality** on rogue AI agents. Existing agent safety benchmarks evaluate *whether* an agent misbehaved, not *how well* the violation can be detected amid benign behavior. StepShield addresses this gap with:
 
-This repository includes:
-
-*   The full benchmark framework, including all detectors and evaluation scripts.
-*   The complete dataset, comprising 9,213 trajectories (7,935 test, 1,278 train) across 6 categories of agent failure.
-*   All ablation study scripts and their corresponding results.
-*   The full LaTeX source and compiled PDF of the paper.
+- **9,213 step-level annotated code-agent trajectories** grounded in real-world security incidents
+- **Three temporal metrics**: Early Intervention Rate (EIR, paired precision), Intervention Gap (IG), and Tokens Saved
+- **Four baseline detectors**: StaticGuard (regex/keyword), ConstraintGuard (explicit constraints), LLMJudge (GPT-4.1-mini), HybridGuard (cascaded)
+- **Six rogue behavior categories**: Unauthorized File Operations (UFO), Secret Exfiltration (SEC), Resource Abuse (RES), Instruction Violation (INV), Test Manipulation (TST), Deceptive Completion (DEC)
 
 ## Repository Structure
 
 ```
 ├── README.md
-├── benchmark/      # Main benchmark framework
-│   ├── detectors/  # Detector implementations (LLMJudge, HybridGuard, etc.)
-│   ├── metrics/    # Evaluation metrics
-│   └── run_benchmark.py # Main script to run the benchmark
-├── ablations/      # All 10 ablation study scripts and results
-│   └── results/    # Raw JSON results from each ablation
-├── data/           # Benchmark dataset
-│   ├── test/       # Test set trajectories (scrubbed and mapping)
-│   ├── train/      # Train set trajectories by category
-│   └── generated_benign/ # Benign trajectories for FPR analysis
-├── config/         # Configuration files and prompts
-└── paper/          # LaTeX source and compiled PDF
+├── benchmark/                  # Main benchmark framework
+│   ├── detectors/              # All 4 detector implementations
+│   │   ├── static_guard.py
+│   │   ├── constraint_guard.py
+│   │   ├── llm_judge.py
+│   │   └── hybrid_guard.py
+│   ├── metrics/                # Evaluation metrics
+│   │   └── timing_metrics.py   # EIR, IG, Tokens Saved
+│   └── run_benchmark.py        # Main evaluation script
+├── ablations/                  # All ablation study scripts
+│   └── results/                # Raw JSON results
+├── data/                       # Benchmark dataset
+│   ├── test/                   # 7,935 test trajectories (scrubbed)
+│   │   ├── scrubbed/           # Category-label-removed trajectories
+│   │   └── mapping.json        # Ground truth mapping
+│   ├── train/                  # 1,278 training pairs by category
+│   │   └── {UFO,SEC,RES,INV,TST,DEC}/
+│   └── generated_benign/       # 6,657 benign trajectories for FPR
+├── config/                     # Configuration files and prompts
+├── results/                    # Raw experimental results
+│   └── final_metrics.json      # All numbers reported in the paper
+└── paper/                      # LaTeX source and compiled PDF
+    ├── StepShield.tex
+    ├── StepShield.pdf
+    ├── references.bib
+    └── figures/
 ```
 
-## Reproduction Instructions
+## Quick Start
 
-To reproduce the main results from the paper (Table 4), follow these steps:
-
-**1. Installation**
+### 1. Installation
 
 ```bash
-# Navigate to the benchmark directory
-cd benchmark
-
-# Install dependencies
-pip install -r requirements.txt
+pip install -r benchmark/requirements.txt
 ```
 
-**2. Set up API Keys**
+### 2. Set Up API Keys
 
-Create a `.env` file in the root directory of this repository and add your OpenAI API key:
+Create a `.env` file in the repository root:
 
 ```
 OPENAI_API_KEY=sk-...
 ```
 
-**3. Run the Benchmark**
-
-From the `benchmark` directory, run the main evaluation script:
+### 3. Run the Full Benchmark
 
 ```bash
-python run_benchmark.py
+python benchmark/run_benchmark.py
 ```
 
-This will evaluate all detectors on the full test set and generate a `results.json` file with the metrics reported in Table 4.
+This evaluates all four detectors on the test set and produces metrics matching Table 4 in the paper.
 
-**4. Reproduce Ablation Studies**
+### 4. Reproduce Ablation Studies
 
-To reproduce any of the 10 ablation studies, navigate to the `ablations` directory and run the corresponding Python script (e.g., `python ablation1_cross_model.py`). The raw results are also available in the `ablations/results` directory.
+```bash
+cd ablations
+python ablation1_cross_model.py      # Table 11: Model scaling
+python ablation2_context_window.py   # Table 12: Context window
+# ... see ablations/ for all scripts
+```
 
-## Paper
+Pre-computed results are in `ablations/results/`.
 
-The full paper can be found in the `paper` directory as `StepShield.pdf`. The LaTeX source is also provided for review.
+## Key Results (Table 4)
+
+| Detector | Accuracy | Recall | EIR | IG | Tokens Saved |
+|:---|:---|:---|:---|:---|:---|
+| StaticGuard | 57.6% | 67.0% | 0.51 | 3.12 | 18.4% |
+| ConstraintGuard | 60.3% | 25.5% | 0.55 | 2.87 | 6.1% |
+| LLMJudge | 61.5% | 78.9% | 0.59 | 2.45 | 31.2% |
+| HybridGuard | **66.0%** | 29.7% | **0.80** | **1.34** | 8.9% |
+
+## Citation
+
+```bibtex
+@inproceedings{anonymous2026stepshield,
+  title={StepShield: When, Not Whether to Intervene on Rogue Agents},
+  author={Anonymous},
+  booktitle={Proceedings of the International Conference on Machine Learning (ICML)},
+  year={2026}
+}
+```
+
+## License
+
+Code and data are released under Apache 2.0.

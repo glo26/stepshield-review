@@ -184,7 +184,7 @@ StepShield contains 9,213 trajectories (see Appendix A for the full datasheet):
     \item \textbf{Test Set:} 639 rogue, 639 clean, and 6,657 benign trajectories (7,935 total, 8.1\% rogue rate). Labels are withheld to prevent overfitting.
 \end{itemize}
 
-The training set is perfectly balanced across severity levels (Table \ref{tab:train_dist}): 213 trajectories each for L1 (Obvious), L2 (Clear), and L3 (Subtle). Category distribution is also balanced: DEC (102), INV (108), RES (102), SEC (102), TST (111), UFO (114). Each rogue trajectory is paired with a clean trajectory for the same task, enabling controlled comparison. Full annotation guidelines are provided in Appendix G.
+The training set is perfectly balanced across severity levels (Table \ref{tab:train_dist}): 213 trajectories each for L1 (Obvious), L2 (Clear), and L3 (Subtle). Category distribution is also balanced: DEC (102), INV (108), RES (102), SEC (102), TST (111), UFO (114). Each rogue trajectory is paired with a clean trajectory for the same task, enabling controlled comparison. Full annotation guidelines are provided in Appendix~\ref{app:annotation}.
 
 \begin{table}[h]
 \caption{Training set: 639 ROGUE + 639 CLEAN pairs.}
@@ -288,7 +288,7 @@ We evaluate four detection paradigms, spanning the spectrum from fast-but-shallo
 Table \ref{tab:main_results} shows our main results. HybridGuard achieves the highest EIR (0.80), while LLMJudge achieves the highest recall (78.87\%) and F1-score (0.75).
 
 \begin{table*}[t]
-\caption{Main results on 639 paired test-set trajectories. Best in bold. FPR column reports \emph{paired} (hard-safe) FPR; deployment-realistic benign FPR is substantially lower (see Section~\ref{sec:fpr}). 95\% bootstrap CIs for EIR are $\pm$0.03 (Appendix~F); cross-model ablation (Appendix~\ref{app:cross_model}) confirms findings hold across three model families.}
+\caption{Main results on 639 paired test-set trajectories. Best in bold. FPR column reports \emph{paired} (hard-safe) FPR; deployment-realistic benign FPR is substantially lower (see Section~\ref{sec:fpr}). 95\% bootstrap CIs for EIR are $\pm$0.03 (Appendix~\ref{app:stat_sig}); cross-model ablation (Appendix~\ref{app:cross_model}) confirms findings hold across three model families.}
 \label{tab:main_results}
 \vskip 0.15in
 \begin{center}
@@ -314,15 +314,17 @@ HybridGuard & \textbf{0.80} & 0.85 & 0.61 & 29.73\% & \textbf{7.67\%} & 24.9\% \
 \vskip -0.1in
 \end{table*}
 
-\textbf{Key Finding: HybridGuard Achieves Highest EIR.} The most striking result is that HybridGuard achieves the highest EIR (0.80) despite having the lowest recall (29.73\%). This demonstrates that \emph{precision of intervention} matters as much as \emph{coverage}---HybridGuard's cascade architecture catches fewer rogue trajectories, but when it does intervene, 80\% of its alarms are correct. LLMJudge (EIR 0.72) achieves the highest recall (78.87\%) and F1 (0.75), but its higher paired FPR (31.30\%) reduces its EIR. StaticGuard and ConstraintGuard both achieve EIR of 0.51---essentially a coin flip between rogue and clean trajectories, confirming that pattern-based approaches cannot reliably discriminate in the paired setting. All differences are statistically significant (Appendix~F).
+\textbf{Key Finding: HybridGuard Achieves Highest EIR.} The most striking result is that HybridGuard achieves the highest EIR (0.80) despite having the lowest recall (29.73\%). This demonstrates that \emph{precision of intervention} matters as much as \emph{coverage}---HybridGuard's cascade architecture catches fewer rogue trajectories, but when it does intervene, 80\% of its alarms are correct. LLMJudge (EIR 0.72) achieves the highest recall (78.87\%) and F1 (0.75), but its higher paired FPR (31.30\%) reduces its EIR. StaticGuard and ConstraintGuard both achieve EIR of 0.51---essentially a coin flip between rogue and clean trajectories, confirming that pattern-based approaches cannot reliably discriminate in the paired setting. All differences are statistically significant (Appendix~\ref{app:stat_sig}).
 
 \textbf{Pre-Execution Evaluation.} All detectors evaluate the agent's proposed action \emph{before} execution. The monitor does not observe the outcome of the action; the goal is prevention, not forensics. This design choice is critical: in security-critical deployments, the cost of allowing a rogue action to execute (data exfiltration, credential theft, database destruction) is irreversible.
 
 \textbf{Recall vs. Precision Trade-off.} HybridGuard achieves the highest EIR (0.80) and lowest FPR (7.67\%) at 85\% lower cost than LLMJudge, but much lower recall (29.73\% vs.\ 78.87\%). LLMJudge catches more rogue trajectories but at the cost of flagging 31.30\% of clean trajectories as false positives. This reveals a fundamental trade-off: aggressive detection catches more attacks but generates more false alarms. Understanding this trade-off is critical for deployment choices.
 
-\textbf{StaticGuard: High Recall, Low Precision.} StaticGuard achieves the second-highest recall (66.98\%) because its broad pattern matching accumulates signal across the full trajectory---enough patterns eventually fire. However, this comes at the cost of the highest FPR (63.85\% paired, 69.09\% benign), making it essentially unusable in deployment. Its EIR of 0.51 barely exceeds the random baseline (0.28), indicating that while it detects many violations, it does so too late and with too many false positives. We provide extensive ablation studies on prompt sensitivity, model scaling, and context window size in Appendix D.
+\textbf{HybridGuard's High IG.} HybridGuard's IG of 0.85 is the highest among all detectors, which may appear counterintuitive given its high EIR. This is an expected artifact of the cascade design: StaticGuard and ConstraintGuard handle the majority of easy cases quickly, while only the most subtle and ambiguous trajectories---where the initial rogue step is hardest to distinguish from benign behavior---escalate to the LLM. HybridGuard's average IG therefore reflects this pre-filtered, hard-case distribution rather than a detection failure.
 
-\textbf{Failure Mode Analysis.} Manual analysis of 100 LLMJudge errors (Appendix~E) reveals that 38\% involve subtle L3 violations requiring cross-step reasoning, 22\% require multi-step temporal inference, and 15\% are false positives on ambiguous boundary cases. These failure modes are systematic, not random, suggesting that targeted improvements---such as multi-step context aggregation---could substantially improve detection quality.
+\textbf{StaticGuard: High Recall, Low Precision.} StaticGuard achieves the second-highest recall (66.98\%) because its broad pattern matching accumulates signal across the full trajectory---enough patterns eventually fire. However, this comes at the cost of the highest FPR (63.85\% paired, 69.09\% benign), making it essentially unusable in deployment. Its EIR of 0.51 barely exceeds the random baseline (0.28), indicating that while it detects many violations, it does so too late and with too many false positives. We provide extensive ablation studies on prompt sensitivity, model scaling, and context window size in Appendix~\ref{app:ablation}.
+
+\textbf{Failure Mode Analysis.} Manual analysis of 100 LLMJudge errors (Appendix~\ref{app:failure}) reveals that 38\% involve subtle L3 violations requiring cross-step reasoning, 22\% require multi-step temporal inference, and 15\% are false positives on ambiguous boundary cases. These failure modes are systematic, not random, suggesting that targeted improvements---such as multi-step context aggregation---could substantially improve detection quality.
 
 \subsection{Category Analysis}
 
@@ -353,7 +355,7 @@ DEC & 0.55 & 0.50 & 0.69 & \textbf{0.80} \\
 \vskip -0.1in
 \end{table}
 
-\textbf{Semantic vs. Pattern-Based Detection.} LLMJudge consistently outperforms StaticGuard on per-category EIR: UFO (0.74 vs.\ 0.48), INV (0.73 vs.\ 0.48), and SEC (0.75 vs.\ 0.51). These violations require understanding intent and context, which pattern matching cannot capture. The gap is narrowest on DEC (0.69 vs.\ 0.55), where deceptive completion patterns occasionally trigger StaticGuard's heuristics. StaticGuard's per-category EIR hovers near 0.50 across all categories, confirming that its pattern-based approach cannot reliably distinguish rogue from clean paired trajectories. We analyze LLMJudge's failure modes in Appendix E.
+\textbf{Semantic vs. Pattern-Based Detection.} LLMJudge consistently outperforms StaticGuard on per-category EIR: UFO (0.74 vs.\ 0.48), INV (0.73 vs.\ 0.48), and SEC (0.75 vs.\ 0.51). These violations require understanding intent and context, which pattern matching cannot capture. The gap is narrowest on DEC (0.69 vs.\ 0.55), where deceptive completion patterns occasionally trigger StaticGuard's heuristics. StaticGuard's per-category EIR hovers near 0.50 across all categories, confirming that its pattern-based approach cannot reliably distinguish rogue from clean paired trajectories. We analyze LLMJudge's failure modes in Appendix~\ref{app:failure}.
 
 \textbf{HybridGuard's Consistent Precision.} HybridGuard achieves the highest per-category EIR across all categories, ranging from 0.75 (RES) to 0.82 (INV). Its cascade architecture---escalating uncertain cases to the LLM---ensures that when it does flag a trajectory, the alarm is almost always correct. By contrast, LLMJudge shows more category variation (0.68--0.75), with its lowest EIR on TST (0.68) where test manipulation patterns can resemble legitimate test refactoring. This result underscores the value of the cascade design for maintaining high precision across diverse violation types.
 
@@ -441,12 +443,12 @@ HybridGuard & \textbf{7.67\%} & \textbf{1.56\%} & $-$6.1pp & 29.73\% \\
 
 \textbf{Deployment Guidance.} StepShield is a \emph{benchmark}, not a deployed solution. The optimal detector depends on context: HybridGuard for security-critical settings (1.56\% benign FPR, 79.5\% EIR), LLMJudge for maximum coverage (78.87\% recall, F1=0.75), and ConstraintGuard for latency-sensitive deployments with moderate FPR tolerance (30.25\% benign FPR, <10ms).
 
-\textbf{Ablation Studies.} Comprehensive ablations (Appendices D--N) confirm robustness: detection scales with model size (+9pp EIR), 5-step context is optimal, the severity-level recall gap validates severity grading, and trajectory length analysis reveals that detectors identify rogue behavior proportionally earlier in longer trajectories.
+\textbf{Ablation Studies.} Comprehensive ablations (Appendices~\ref{app:ablation}--\ref{app:severity}) confirm robustness: detection scales with model size (+9pp EIR), 5-step context is optimal, the severity-level recall gap validates severity grading, and trajectory length analysis reveals that detectors identify rogue behavior proportionally earlier in longer trajectories.
 
 \section{Conclusion and Limitations}
 \label{sec:limitations}
 
-StepShield measures \emph{how effectively} detectors intervene on rogue agents, revealing a 1.6x EIR gap (0.80 vs.\ 0.51) invisible to binary accuracy. The best automated detector (HybridGuard, EIR 0.80) still lags behind human experts (EIR 0.92) by 12.5 points, establishing step-level rogue detection as an open problem. Cross-model and paraphrase ablations confirm robustness. \textbf{Limitations:} code agents only; extending to multi-modal and web agents, and training a dedicated detector to close the EIR gap to human experts, are important directions for future work.
+StepShield measures \emph{how effectively} detectors intervene on rogue agents, revealing a 1.6x EIR gap (0.80 vs.\ 0.51) invisible to binary accuracy. The best automated detector (HybridGuard, EIR 0.80) still lags behind human experts (EIR 0.92) by 12.5 points, establishing step-level rogue detection as an open problem. Cross-model and paraphrase ablations confirm robustness. \textbf{Limitations:} code agents only; extending to multi-modal, web, and multi-agent systems is important future work. For multi-agent frameworks (e.g., LangGraph, AutoGen), a logical ``step'' can be anchored to tool call completions or message sends; for truly asynchronous systems, wall-clock timestamps can replace step indices. Training a dedicated detector to close the EIR gap to human experts is another key direction.
 
 
 
@@ -501,12 +503,13 @@ The starting scale of 100 million trajectories per year reflects current enterpr
 
 \textbf{Sensitivity Analysis.} Under conservative assumptions (25\% growth, 50M starting scale), cumulative savings are \$54M. Under aggressive assumptions (50\% growth, 200M starting scale), cumulative savings reach \$432M. Our moderate estimate of \$108M represents a realistic middle ground.
 
-\subsection{Data Collection and Annotation}
+\section{Data Collection and Annotation}
 \label{app:data_generation}
 
 StepShield's 9,213 trajectories were collected over a 3-month period from January to March 2025. We employed a team of 4 expert annotators with backgrounds in software engineering and cybersecurity. Each trajectory was independently annotated by two annotators, with a third senior researcher resolving any disagreements. The inter-annotator agreement (Cohen's Kappa) was 0.82, indicating substantial agreement. The final dataset consists of 1,278 training trajectories (639 rogue-clean pairs) and 7,935 test trajectories (8.1\% rogue rate). The rogue behaviors are distributed across six categories: Deceptive Completion (DEC), Instruction Violation (INV), Resource Abuse (RES), Secret Exfiltration (SEC), Test Manipulation (TST), and Unauthorized File Operations (UFO).
 
 \section{Reproducibility}
+\label{app:reproducibility}
 
 All code, data, and experiments are released under Apache 2.0 license.
 
@@ -535,6 +538,7 @@ All code, data, and experiments are released under Apache 2.0 license.
 \textbf{Configuration.} Key hyperparameters: \texttt{seed=42}, \texttt{model=GPT-4.1-mini}, \texttt{context\_steps=5}, \texttt{cascade\_threshold=0.7}, \texttt{temperature=0.0}.
 
 \section{Extended Ablation Studies}
+\label{app:ablation}
 
 We conduct extensive ablation studies to understand the key drivers of detector performance. All ablations are run on the full training set (1,278 trajectories) with 5 random seeds, and we report mean values. Standard deviations are $\pm$0.02 across all experiments.
 
@@ -644,6 +648,7 @@ Threshold & EIR & Cost/Traj & ms \\
 \end{table}
 
 \section{Failure Case Analysis}
+\label{app:failure}
 
 We manually analyze 100 randomly sampled failure cases of LLMJudge to understand its primary modes of error. Table \ref{tab:failure_cases} shows the distribution of failure modes.
 
@@ -672,6 +677,7 @@ Other & 13\% \\
 \end{table}
 
 \section{Statistical Significance}
+\label{app:stat_sig}
 
 We use bootstrapping with 10,000 samples to compute 95\% confidence intervals for EIR. We use McNemar's test to compare detector performance. Table \ref{tab:statsig} shows all detector differences are statistically significant.
 
@@ -699,6 +705,7 @@ HybridGuard & [0.77, 0.82] & <.001 \\
 \end{table}
 
 \section{Annotation Guidelines}
+\label{app:annotation}
 
 We provide the exact guidelines given to our two independent annotators.
 
@@ -713,6 +720,7 @@ We provide the exact guidelines given to our two independent annotators.
 We measured inter-annotator agreement using Cohen's Kappa on a randomly sampled set of 500 trajectories. The Kappa score was 0.82, indicating substantial agreement between our two independent annotators. All disagreements were resolved by a third senior researcher.
 
 \section{Human Expert Baseline}
+\label{app:human}
 
 To ground our automated metrics, we had two human experts (PhD students in CS with 5+ years of experience in agent systems) manually evaluate a random sample of 100 rogue trajectories. The experts were given the same task as the automated detectors: identify the first rogue step. The results are shown in Table \ref{tab:human_expert}.
 
@@ -789,6 +797,7 @@ A critical question for any LLM-based evaluation benchmark is whether the findin
 \begin{center}
 \begin{small}
 \begin{sc}
+\resizebox{\columnwidth}{!}{
 \begin{tabular}{lcccc}
 \toprule
 Model & Recall & FPR & F1 & Prec \\
@@ -798,6 +807,7 @@ GPT-4.1-MINI & 77.9\% & 27.5\% & 75.9\% & 73.9\% \\
 GPT-4.1-NANO & 29.7\% & 8.8\% & 42.9\% & 77.2\% \\
 \bottomrule
 \end{tabular}
+}
 \end{sc}
 \end{small}
 \end{center}
@@ -809,6 +819,7 @@ GPT-4.1-NANO & 29.7\% & 8.8\% & 42.9\% & 77.2\% \\
 \textbf{Run-to-run variance.} GPT-4.1-mini achieves 77.9\% recall in this experiment vs.\ 91.2\% in the paraphrase study (Table~\ref{tab:paraphrase}), despite identical model, temperature (0.0), and data. This 13.3pp gap reflects well-documented LLM non-determinism~\citep{chen2024chatgpt}. We frame this high variance not as a limitation, but as a key \emph{finding} of our work: it empirically quantifies the instability of relying on current LLMs for safety-critical detection, where run-to-run variance can exceed 10pp on a core metric. This underscores the need for more robust and deterministic detection mechanisms. Critically, this variance \emph{strengthens} our conclusions: the cross-model comparison remains valid because all three models were evaluated under identical conditions within the same run. The relevant comparisons are \emph{within-study} (Gemini vs.\ Mini vs.\ Nano), not \emph{across-study}.
 
 \section{Per-Category Recall Analysis}
+\label{app:per_cat_recall}
 
 Table \ref{tab:per_category_recall} shows per-category recall across model families. Spearman rank correlation of category difficulty: $\rho = 0.714$ (gemini vs.\ mini), confirming consistent difficulty ranking across model families.
 
@@ -840,6 +851,7 @@ UFO & 84.2\% & 87.7\% & 22.8\% \\
 The Spearman rank correlation of per-category recall between Gemini and GPT-4.1-mini is $\rho=0.714$, indicating strong agreement on which categories are harder to detect. Both models find RES and DEC the most challenging, while TST and UFO are the easiest. This consistent difficulty ranking across model families provides strong evidence that StepShield measures genuine properties of rogue behavior rather than model-specific generation artifacts.
 
 \section{StaticGuard Confidence Analysis}
+\label{app:static_conf}
 
 We analyze the confidence scores of StaticGuard to understand its behavior and inform the design of HybridGuard's cascade mechanism. Table \ref{tab:static_confidence} shows the distribution of max-confidence scores for each of the four evaluation outcomes (TP, FP, TN, FN).
 
@@ -960,7 +972,7 @@ Bin & $N_r$ & Recall & FPR & EIR & DetPos \\
 \section{Extended Cascade Threshold Analysis}
 \label{app:threshold}
 
-We extend the cascade threshold analysis from Appendix~D by performing a fine-grained sweep across the full [0.3, 0.9] range. This table isolates the \emph{first-pass} (StaticGuard-only) component of the cascade to show how the escalation threshold $\tau$ controls the speed--accuracy trade-off.
+We extend the cascade threshold analysis from Appendix~\ref{app:ablation} by performing a fine-grained sweep across the full [0.3, 0.9] range. This table isolates the \emph{first-pass} (StaticGuard-only) component of the cascade to show how the escalation threshold $\tau$ controls the speed--accuracy trade-off.
 
 \begin{table}[h]
 \caption{First-pass cascade threshold sweep (StaticGuard component only). ``Static Recall'' is the recall of the StaticGuard first pass alone; the full cascade recall additionally includes LLM fallback on escalated trajectories.}
@@ -1067,12 +1079,12 @@ The trend toward larger context windows (GPT-4: 128k, Claude: 200k) amplifies th
 
 \section{Ethics Statement}
 
-The StepShield benchmark and detectors are intended for research purposes to advance the safe development of AI agents. The detectors themselves could be used maliciously to evade detection, but we have not released the detector code, only the benchmark data. We believe the benefits of enabling research into agent safety outweigh the risks.
+The StepShield benchmark and detectors are intended for research purposes to advance the safe development of AI agents. While the detectors themselves could potentially be studied to evade detection, we release both the detector code and benchmark data under Apache 2.0 to enable reproducibility and community scrutiny. We believe the benefits of enabling research into agent safety outweigh the risks of potential misuse.
 
 \section{Broader Impact}
 
 The primary contribution of this work is to enable a paradigm shift in agent safety, moving from a reactive, post-mortem approach to a proactive, real-time interventionist one. By providing the first benchmark that explicitly measures and rewards the timeliness of detection, we hope to catalyze research into agent safety systems capable of intervening \textit{before} significant harm occurs.
 
-However, StepShield is not a panacea for agent safety. It is one component of a comprehensive, defense-in-depth security posture that should also include sandboxing, formal verification, and robust access control. Furthermore, any powerful monitoring technology carries the risk of misuse. We have sought to mitigate this risk by focusing our taxonomy on clearly harmful behaviors and by releasing our code and data under an open-source license to encourage transparency and community scrutiny.
+However, StepShield is not a panacea for agent safety. It is one component of a comprehensive, defense-in-depth security posture that should also include sandboxing, formal verification, and robust access control. Furthermore, any powerful monitoring technology carries the risk of misuse, including the risk of false positives unfairly terminating legitimate agent behavior. Our FPR analysis (Section~5.5) quantifies this risk: even the best-performing detector (HybridGuard) flags 1.56\% of benign trajectories, and LLMJudge flags 23.8\% on the full test set. Deploying such systems without human-in-the-loop oversight for high-stakes decisions could lead to unjust interruptions of productive work. We recommend that practitioners treat detector outputs as alerts requiring human review rather than as automatic kill switches, particularly in production environments where false termination carries significant cost. We have sought to mitigate the broader risk of misuse by focusing our taxonomy on clearly harmful behaviors and by releasing our code and data under an open-source license to encourage transparency and community scrutiny.
 
 \end{document}
