@@ -1,4 +1,4 @@
-\begin{thebibliography}{39}
+\begin{thebibliography}{41}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -53,6 +53,13 @@ Han, S., Kim, K., Shin, H., Hwang, S., Lee, J., Kim, K., Back, S., Kim, M.,
 \newblock Wildguard: Open one-stop moderation tools for safety risks,
   jailbreaks, and refusals of llms.
 \newblock \emph{arXiv preprint arXiv:2406.18495}, 2024.
+
+\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{hu2022lora}
+Hu, E.~J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., and
+  Chen, W.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock \emph{arXiv preprint arXiv:2106.09685}, 2022.
 
 \bibitem[Hubinger et~al.(2024)Hubinger, Denison, Mu, Lambert, Tong, MacDiarmid,
   Lanham, Ziegler, Maxwell, Cheng, et~al.]{hubinger2024sleeper}
@@ -119,6 +126,12 @@ Liu, X., Yu, H., Zhang, H., Xu, Y., Lei, X., Lai, H., Gu, Y., Ding, H., Men,
 \newblock {AgentBench}: Evaluating {LLMs} as agents.
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2024.
+
+\bibitem[Liu et~al.(2026)Liu, Zhang, Han, Liu, Wang, Yu, Wang, and
+  Yin]{liu2026trajad}
+Liu, Y., Zhang, C., Han, Z., Liu, H., Wang, Y., Yu, Y., Wang, X., and Yin, Y.
+\newblock {TrajAD}: Trajectory anomaly detection for trustworthy {LLM} agents.
+\newblock \emph{arXiv preprint arXiv:2602.06443}, 2026.
 
 \bibitem[{Mandiant}(2024)]{mandiant2024mtrends}
 {Mandiant}.
