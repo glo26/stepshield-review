@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: StepShield.aux
 The style file: icml2025.bst
 Database file #1: references.bib
-You've used 34 entries,
+You've used 39 entries,
             2773 wiz_defined-function locations,
-            734 strings with 12412 characters,
-and the built_in function-call counts, 20666 in all, are:
-= -- 1535
-> -- 2140
-< -- 11
-+ -- 721
-- -- 687
-* -- 1841
-:= -- 3433
-add.period$ -- 102
-call.type$ -- 34
-change.case$ -- 312
-chr.to.int$ -- 34
-cite$ -- 68
-duplicate$ -- 714
-empty$ -- 1188
-format.name$ -- 731
-if$ -- 4117
+            759 strings with 13405 characters,
+and the built_in function-call counts, 23234 in all, are:
+= -- 1753
+> -- 2339
+< -- 15
++ -- 789
+- -- 750
+* -- 2049
+:= -- 3849
+add.period$ -- 120
+call.type$ -- 39
+change.case$ -- 349
+chr.to.int$ -- 39
+cite$ -- 78
+duplicate$ -- 821
+empty$ -- 1360
+format.name$ -- 799
+if$ -- 4644
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 32
-newline$ -- 178
-num.names$ -- 136
-pop$ -- 689
+missing$ -- 35
+newline$ -- 206
+num.names$ -- 156
+pop$ -- 758
 preamble$ -- 1
-purify$ -- 278
+purify$ -- 308
 quote$ -- 0
-skip$ -- 647
+skip$ -- 738
 stack$ -- 0
-substring$ -- 93
-swap$ -- 48
-text.length$ -- 0
+substring$ -- 135
+swap$ -- 63
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 374
+type$ -- 429
 warning$ -- 0
-while$ -- 104
+while$ -- 122
 width$ -- 0
-write$ -- 416
+write$ -- 486

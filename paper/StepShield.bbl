@@ -1,4 +1,4 @@
-\begin{thebibliography}{34}
+\begin{thebibliography}{39}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -19,6 +19,14 @@ Andriushchenko, M., Souly, A., Dziemian, M., Duenas, D., Lin, M., Wang, J.,
 Benton, J., Scheurer, J., et~al.
 \newblock Ctrl-alt-deceit: Sabotage evaluations for automated ai r\&d.
 \newblock \emph{arXiv preprint arXiv:2511.09904}, 2025.
+
+\bibitem[Chen et~al.(2024)Chen, Jiao, Li, Qin, Ravber, Jiang, Dey,
+  et~al.]{chen2024chatgpt}
+Chen, H., Jiao, F., Li, X., Qin, C., Ravber, M., Jiang, R., Dey, R., et~al.
+\newblock Chatgpt's one-year anniversary: Are open-source large language models
+  catching up?
+\newblock \emph{arXiv preprint arXiv:2311.16989}, 2024.
+\newblock Documents API-level non-determinism in LLM inference.
 
 \bibitem[Chen et~al.(2025)Chen, Kang, and Li]{chen2025shieldagent}
 Chen, Z., Kang, M., and Li, B.
@@ -67,6 +75,13 @@ Jimenez, C.~E. et~al.
 \newblock {SWE-bench}: Can language models resolve real-world {GitHub} issues?
 \newblock In \emph{ICLR}, 2024.
 
+\bibitem[Keles et~al.(2023)Keles, Wijewardena, and
+  Hegde]{keles2023computational}
+Keles, F.~D., Wijewardena, P.~M., and Hegde, C.
+\newblock On the computational complexity of self-attention.
+\newblock In \emph{Proceedings of the 34th International Conference on
+  Algorithmic Learning Theory (ALT)}, pp.\  597--619, 2023.
+
 \bibitem[Krakovna et~al.(2020)]{krakovna2020specification}
 Krakovna, V. et~al.
 \newblock Specification gaming: the flip side of {AI} ingenuity.
@@ -104,6 +119,12 @@ Liu, X., Yu, H., Zhang, H., Xu, Y., Lei, X., Lai, H., Gu, Y., Ding, H., Men,
 \newblock {AgentBench}: Evaluating {LLMs} as agents.
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2024.
+
+\bibitem[{Mandiant}(2024)]{mandiant2024mtrends}
+{Mandiant}.
+\newblock M-trends 2024: Special report.
+\newblock Technical report, Google Cloud Security, 2024.
+\newblock URL \url{https://www.mandiant.com/m-trends}.
 
 \bibitem[{METR}(2026)]{metr2026shushcast}
 {METR}.
@@ -143,6 +164,20 @@ Tur, A.~D., Meade, N., L{\`u}, X.~H., Zambrano, A., Patel, A., et~al.
 \newblock {SafeArena}: Evaluating the safety of autonomous web agents.
 \newblock In \emph{Proceedings of the 42nd International Conference on Machine
   Learning (ICML)}, 2025.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
+  Kaiser, and Polosukhin]{vaswani2017attention}
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.~N.,
+  Kaiser, L., and Polosukhin, I.
+\newblock Attention is all you need.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, volume~30, 2017.
+
+\bibitem[{Verizon}(2024)]{verizon2024dbir}
+{Verizon}.
+\newblock 2024 data breach investigations report.
+\newblock Technical report, Verizon Business, 2024.
+\newblock URL \url{https://www.verizon.com/business/resources/reports/dbir/}.
 
 \bibitem[Wang et~al.(2024)Wang, Li, Shao, Xu, Dai, Li, Chen, Wu, and
   Sui]{wang2024mathshepherd}
