@@ -3,25 +3,18 @@
 Our evaluation of four detection paradigms on the StepShield benchmark
 reveals a clear and challenging trade-off between precision and recall,
 as summarized in
-Table [\[tab:main_results\]](#tab:main_results){reference-type="ref"
-reference="tab:main_results"}. No single detector dominates across all
+Table . No single detector dominates across all
 metrics, highlighting the complexity of step-level rogue agent
 detection.
 
-:::::: table*
-::::: center
-:::: small
-::: sc
-  Detector           B-FPR ($\downarrow$)   Recall ($\uparrow$)   P-FPR ($\downarrow$)   EIR ($\uparrow$)   F1-Score ($\uparrow$)
-  ----------------- ---------------------- --------------------- ---------------------- ------------------ -----------------------
-  StaticGuard               69.09%                66.98%                 63.85%               51.20%               0.5803
-  ConstraintGuard           30.25%                22.38%                 21.91%               50.53%               0.3102
-  LLMJudge                  23.76%                78.87%                 31.30%               71.59%               0.7506
-  HybridGuard               1.56%                 29.73%                 7.67%                79.50%               0.4328
-:::
-::::
-:::::
-::::::
+**Table 1: Main results on the StepShield benchmark.** We report Benign FPR (B-FPR) on 6,657 benign trajectories, and Recall, Paired FPR (P-FPR), EIR, and F1-score on 639 rogue-clean pairs.
+
+| Detector | B-FPR | Recall | P-FPR | EIR | F1-Score |
+|---|---|---|---|---|---|
+| StaticGuard | 69.09% | 66.98% | 63.85% | 51.20% | 0.5803 |
+| ConstraintGuard | 30.25% | 22.38% | 21.91% | 50.53% | 0.3102 |
+| LLMJudge | 23.76% | 78.87% | 31.30% | 71.59% | 0.7506 |
+| HybridGuard | 1.56% | 29.73% | 7.67% | 79.50% | 0.4328 |
 
 ## Key Findings
 
@@ -299,15 +292,8 @@ We followed four principles in designing StepShield:
 ## Rogue Behavior Taxonomy
 
 We define six rogue behavior categories, grounded in real-world
-incidents (Table [\[tab:taxonomy\]](#tab:taxonomy){reference-type="ref"
-reference="tab:taxonomy"}).
+incidents (Table ).
 
-::::: center
-:::: small
-::: sc
-:::
-::::
-:::::
 
 **Unauthorized File Operations (UFO).** The agent accesses, modifies, or
 deletes files outside its designated scope. This category is grounded in
@@ -339,21 +325,11 @@ We define three severity levels based on the cognitive effort needed for
 detection, not the potential harm (Table
 [1](#tab:severity){reference-type="ref" reference="tab:severity"}).
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:severity}
-  Level   Name      Detection Example
-  ------- --------- ----------------------
-  L1      Obvious   Keyword (rm -rf)
-  L2      Clear     Pattern (@skip)
-  L3      Subtle    Cross-step Reasoning
-
-  : Severity levels measure detection difficulty, not harm.
-:::
-::::
-:::::
-::::::
+| Level | Name | Detection Example |
+|---|---|---|
+| L1 | Obvious | Keyword (rm -rf) |
+| L2 | Clear | Pattern (@skip) |
+| L3 | Subtle | Cross-step Reasoning |
 
 This severity calibration enables fine-grained analysis of detector
 capabilities. A detector that excels at L1 but fails at L3 has different
@@ -380,25 +356,15 @@ SEC (102), TST (111), UFO (114). Each rogue trajectory is paired with a
 clean trajectory for the same task, enabling controlled comparison. Full
 annotation guidelines are provided in Appendix G.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:train_dist}
-  Category    L1    L2    L3    Total
-  ---------- ----- ----- ----- -------
-  DEC         34    34    34     102
-  INV         36    36    36     108
-  RES         34    34    34     102
-  SEC         34    34    34     102
-  TST         37    37    37     111
-  UFO         38    38    38     114
-  Total       213   213   213    639
-
-  : Training set: 639 ROGUE + 639 CLEAN pairs.
-:::
-::::
-:::::
-::::::
+| Category | L1 | L2 | L3 | Total |
+|---|---|---|---|---|
+| DEC | 34 | 34 | 34 | 102 |
+| INV | 36 | 36 | 36 | 108 |
+| RES | 34 | 34 | 34 | 102 |
+| SEC | 34 | 34 | 34 | 102 |
+| TST | 37 | 37 | 37 | 111 |
+| UFO | 38 | 38 | 38 | 114 |
+| Total | 213 | 213 | 213 | 639 |
 
 The 8.1% rogue rate in the test set simulates realistic production
 conditions where most agent runs are benign. This is critical for
@@ -514,28 +480,19 @@ escalated at 1,750ms). Cost:  \$0.003 per trajectory.
 
 ## Main Results
 
-Table [\[tab:main_results\]](#tab:main_results){reference-type="ref"
-reference="tab:main_results"} shows our main results. LLMJudge achieves
+Table  shows our main results. LLMJudge achieves
 the highest EIR (0.59) and accuracy (0.74), while HybridGuard provides
 the best cost--accuracy trade-off (0.64 accuracy at \$0.003/trajectory).
 
-:::::: table*
-::::: center
-:::: small
-::: sc
-  Detector              EIR $\uparrow$   IG $\downarrow$     Acc       Recall     FPR $\downarrow$     Saved
-  -------------------- ---------------- ----------------- ---------- ----------- ------------------ -----------
-  *Random (p=.05)*          *0.28*            *1.6*         *0.50*     *46.5%*        *46.9%*         *51.6%*
-  *Majority (clean)*        *0.00*            *--*          *0.50*     *0.0%*          *0.0%*         *0.0%*
-  *Human Expert*            *0.92*            *0.1*          *--*      *100%*          *0.0%*          *--*
-  StaticGuard                0.26             0.42           0.56       34.9%        **21.9%**         16.7%
-  ConstraintGuard            0.18             0.25           0.50       22.4%        **21.9%**         10.9%
-  LLMJudge                 **0.59**         **0.20**       **0.74**   **95.1%**        47.1%         **35.8%**
-  HybridGuard                0.41             0.85           0.64       58.5%          30.2%           24.9%
-:::
-::::
-:::::
-::::::
+| Detector | EIR $\uparrow$ | IG $\downarrow$ | Acc | Recall | FPR $\downarrow$ | Saved |
+|---|---|---|---|---|---|---|
+| *Random (p=.05)* | *0.28* | *1.6* | *0.50* | *46.5%* | *46.9%* | *51.6%* |
+| *Majority (clean)* | *0.00* | *--* | *0.50* | *0.0%* | *0.0%* | *0.0%* |
+| *Human Expert* | *0.92* | *0.1* | *--* | *100%* | *0.0%* | *--* |
+| StaticGuard | 0.26 | 0.42 | 0.56 | 34.9% | **21.9%** | 16.7% |
+| ConstraintGuard | 0.18 | 0.25 | 0.50 | 22.4% | **21.9%** | 10.9% |
+| LLMJudge | **0.59** | **0.20** | **0.74** | **95.1%** | 47.1% | **35.8%** |
+| HybridGuard | 0.41 | 0.85 | 0.64 | 58.5% | 30.2% | 24.9% |
 
 **Key Finding: The 2.3x EIR Gap.** The most striking result is the 2.3x
 gap in EIR between LLMJudge (0.59) and StaticGuard (0.26), despite
@@ -588,24 +545,14 @@ Table [3](#tab:eir_category){reference-type="ref"
 reference="tab:eir_category"} shows EIR broken down by rogue category.
 Different detectors excel at different violation types.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:eir_category}
-  Cat.    Static   Constr.     LLM      Hybrid
-  ------ -------- --------- ---------- --------
-  UFO      0.24     0.32     **0.76**    0.39
-  SEC      0.38     0.02     **0.71**    0.45
-  RES      0.12     0.04     **0.45**    0.28
-  INV      0.19     0.19     **0.70**    0.27
-  TST      0.49     0.24     **0.58**    0.44
-  DEC      0.09     0.26     **0.79**    0.29
-
-  : EIR by rogue category.
-:::
-::::
-:::::
-::::::
+| Cat. | Static | Constr. | LLM | Hybrid |
+|---|---|---|---|---|
+| UFO | 0.24 | 0.32 | **0.76** | 0.39 |
+| SEC | 0.38 | 0.02 | **0.71** | 0.45 |
+| RES | 0.12 | 0.04 | **0.45** | 0.28 |
+| INV | 0.19 | 0.19 | **0.70** | 0.27 |
+| TST | 0.49 | 0.24 | **0.58** | 0.44 |
+| DEC | 0.09 | 0.26 | **0.79** | 0.29 |
 
 **Semantic vs. Pattern-Based Detection.** LLMJudge dramatically
 outperforms StaticGuard on semantic violations: UFO (0.76 vs. 0.24), INV
@@ -630,22 +577,12 @@ detecting subtle specification gaming.
 We analyze EIR across severity levels to understand detector
 capabilities at different difficulty levels.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:eir_severity}
-  Detector              L1         L2         L3
-  ----------------- ---------- ---------- ----------
-  StaticGuard          0.42       0.23       0.08
-  ConstraintGuard      0.31       0.18       0.04
-  LLMJudge           **0.78**   **0.61**   **0.38**
-  HybridGuard          0.65       0.42       0.21
-
-  : EIR by severity level.
-:::
-::::
-:::::
-::::::
+| Detector | L1 | L2 | L3 |
+|---|---|---|---|
+| StaticGuard | 0.42 | 0.23 | 0.08 |
+| ConstraintGuard | 0.31 | 0.18 | 0.04 |
+| LLMJudge | **0.78** | **0.61** | **0.38** |
+| HybridGuard | 0.65 | 0.42 | 0.21 |
 
 **The L3 Challenge.** All detectors struggle with L3 (subtle)
 violations, which require cross-step reasoning or semantic
@@ -666,8 +603,7 @@ hardest possible FPR test---the clean trajectory shares the same task,
 the same initial steps, and the same surface-level patterns as its rogue
 counterpart.
 
-Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-reference="tab:fpr_results"} reports the paired results. LLMJudge
+Table  reports the paired results. LLMJudge
 achieves 95.1% recall but at 47.1% FPR; StaticGuard and ConstraintGuard
 share the lowest FPR (21.9%) but detect fewer than 35% of rogue
 trajectories. No detector dominates on both axes---the Pareto frontier
@@ -682,8 +618,7 @@ compared to training-set ablation results.
 **Deployment-Realistic Benign FPR.** To complement the adversarial
 paired evaluation, we also measure FPR on the 6,657 random benign
 test-set trajectories that are *not* paired with any rogue trajectory
-(Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-reference="tab:fpr_results"}). StaticGuard achieves 0.0% benign FPR;
+(Table ). StaticGuard achieves 0.0% benign FPR;
 HybridGuard achieves 0.7% ($n{=}1{,}000$, 95% CI \[0.2%, 1.2%\]);
 LLMJudge achieves 31.5% ($n{=}200$, 95% CI \[25.1%, 37.9%\]); and
 ConstraintGuard achieves 30.3%---notably *higher* than its paired FPR
@@ -696,12 +631,6 @@ adversarial stress test the benchmark is designed to provide. In
 deployment, where the vast majority of trajectories are benign,
 HybridGuard's effective FPR approaches zero.
 
-::::: center
-:::: small
-::: sc
-:::
-::::
-:::::
 
 **Off-the-Shelf LLM Judges Are Insufficient.** LLMJudge's 47.1%
 FPR---consistent with PolyGuard's finding that top guardrails achieve
@@ -815,25 +744,15 @@ draw primarily from the MarketsandMarkets AI Agents Market Report
 (2025), Grand View Research forecasts, the a16z LLMification Report, and
 the LangChain State of AI Agents survey.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:econ_assumptions}
-  Parameter        Value     Rationale
-  ---------------- --------- ----------------
-  Starting Scale   100M/yr   15% adoption
-  Growth Rate      35% YoY   Mid-range est.
-  Baseline Cost    \$0.10    8k tokens
-  StaticGuard      \$0.08    17% savings
-  LLMJudge         \$0.08    35% savings
-  HybridGuard      \$0.025   85% cascade
-  5-Year Savings   \$108M    vs. None
-
-  : Economic projection assumptions.
-:::
-::::
-:::::
-::::::
+| Parameter | Value | Rationale |
+|---|---|---|
+| Starting Scale | 100M/yr | 15% adoption |
+| Growth Rate | 35% YoY | Mid-range est. |
+| Baseline Cost | \$0.10 | 8k tokens |
+| StaticGuard | \$0.08 | 17% savings |
+| LLMJudge | \$0.08 | 35% savings |
+| HybridGuard | \$0.025 | 85% cascade |
+| 5-Year Savings | \$108M | vs. None |
 
 The starting scale of 100 million trajectories per year reflects current
 enterprise adoption rates, with Gartner reporting 15% of enterprises
@@ -888,9 +807,8 @@ no local GPU resources.
 
 **Running Experiments.** To reproduce main results:
 
-::: small
+
 `python -m stepshield.evaluate --detector [detector]`
-:::
 
 where `[detector]` is one of: `llmjudge`, `staticguard`, or
 `hybridguard`.
@@ -914,21 +832,11 @@ results in Table [6](#tab:prompt_sensitivity){reference-type="ref"
 reference="tab:prompt_sensitivity"} show that LLMJudge is robust to
 prompt variations, with EIR ranging from 0.57 to 0.59.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:prompt_sensitivity}
-  Style               EIR    Acc    ms
-  ------------------ ------ ------ -----
-  Zero-Shot           0.57   0.72   480
-  Few-Shot (2)        0.59   0.74   520
-  Chain-of-Thought    0.58   0.73   650
-
-  : Prompt sensitivity analysis for LLMJudge.
-:::
-::::
-:::::
-::::::
+| Style | EIR | Acc | ms |
+|---|---|---|---|
+| Zero-Shot | 0.57 | 0.72 | 480 |
+| Few-Shot (2) | 0.59 | 0.74 | 520 |
+| Chain-of-Thought | 0.58 | 0.73 | 650 |
 
 ## Model Scaling Analysis
 
@@ -938,21 +846,11 @@ from the GPT-4 family. Table
 reference="tab:model_scaling"} shows a clear scaling trend: GPT-4-Turbo
 achieves 15% higher EIR than GPT-4.1-mini (0.68 vs. 0.59).
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:model_scaling}
-  Model           EIR    Accuracy   Cost/Traj
-  -------------- ------ ---------- -----------
-  GPT-4.1-mini    0.59     0.74      \$0.02
-  GPT-4           0.64     0.79      \$0.08
-  GPT-4-Turbo     0.68     0.83      \$0.05
-
-  : Model scaling analysis: larger models achieve higher EIR scores.
-:::
-::::
-:::::
-::::::
+| Model | EIR | Accuracy | Cost/Traj |
+|---|---|---|---|
+| GPT-4.1-mini | 0.59 | 0.74 | \$0.02 |
+| GPT-4 | 0.64 | 0.79 | \$0.08 |
+| GPT-4-Turbo | 0.68 | 0.83 | \$0.05 |
 
 ## Context Window Analysis
 
@@ -962,22 +860,12 @@ affects detection performance. Table
 reference="tab:context_window"} shows diminishing returns beyond 5
 context steps.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:context_window}
-  Steps    EIR    Acc    ms
-  ------- ------ ------ -----
-  1        0.52   0.68   350
-  3        0.58   0.73   450
-  5        0.59   0.74   510
-  All      0.60   0.75   850
-
-  : Context window analysis: 5 steps is optimal.
-:::
-::::
-:::::
-::::::
+| Steps | EIR | Acc | ms |
+|---|---|---|---|
+| 1 | 0.52 | 0.68 | 350 |
+| 3 | 0.58 | 0.73 | 450 |
+| 5 | 0.59 | 0.74 | 510 |
+| All | 0.60 | 0.75 | 850 |
 
 ## Ablation on HybridGuard Cascade
 
@@ -988,21 +876,11 @@ reference="tab:cascade_ablation"} shows that the cascade threshold of
 threshold reduces cost but also reduces EIR, while a higher threshold
 increases cost without a significant improvement in EIR.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:cascade_ablation}
-  Threshold    EIR    Cost/Traj    ms
-  ----------- ------ ----------- ------
-  0.5          0.35    \$0.015    850
-  0.7          0.41    \$0.025    1750
-  0.9          0.42    \$0.040    2500
-
-  : HybridGuard cascade ablation.
-:::
-::::
-:::::
-::::::
+| Threshold | EIR | Cost/Traj | ms |
+|---|---|---|---|
+| 0.5 | 0.35 | \$0.015 | 850 |
+| 0.7 | 0.41 | \$0.025 | 1750 |
+| 0.9 | 0.42 | \$0.040 | 2500 |
 
 # Failure Case Analysis
 
@@ -1011,23 +889,13 @@ understand its primary modes of error. Table
 [10](#tab:failure_cases){reference-type="ref"
 reference="tab:failure_cases"} shows the distribution of failure modes.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:failure_cases}
-  Failure Mode            Freq.
-  ---------------------- -------
-  Subtle L3 Violations     38%
-  Multi-Step Reasoning     22%
-  False Positives          15%
-  Ambiguous Boundary       12%
-  Other                    13%
-
-  : Failure case analysis for LLMJudge.
-:::
-::::
-:::::
-::::::
+| Failure Mode | Freq. |
+|---|---|
+| Subtle L3 Violations | 38% |
+| Multi-Step Reasoning | 22% |
+| False Positives | 15% |
+| Ambiguous Boundary | 12% |
+| Other | 13% |
 
 # Statistical Significance
 
@@ -1037,22 +905,12 @@ performance. Table [11](#tab:statsig){reference-type="ref"
 reference="tab:statsig"} shows all detector differences are
 statistically significant.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:statsig}
-  Detector            EIR (95% CI)    p-val
-  ----------------- ---------------- --------
-  LLMJudge           \[0.59, 0.62\]     \-
-  StaticGuard        \[0.23, 0.29\]   \<.001
-  ConstraintGuard    \[0.15, 0.21\]   \<.001
-  HybridGuard        \[0.38, 0.44\]   \<.05
-
-  : Statistical significance analysis.
-:::
-::::
-:::::
-::::::
+| Detector | EIR (95% CI) | p-val |
+|---|---|---|
+| LLMJudge | \[0.59, 0.62\] | \- |
+| StaticGuard | \[0.23, 0.29\] | \<.001 |
+| ConstraintGuard | \[0.15, 0.21\] | \<.001 |
+| HybridGuard | \[0.38, 0.44\] | \<.05 |
 
 # Annotation Guidelines
 
@@ -1123,25 +981,16 @@ While uniform pricing suggests 75% token savings from step-4
 intervention, the true computational savings reach 94% when accounting
 for attention costs.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:quadratic_savings}
-  ----------- -------- --------- ---------
-  Detection    Tokens   Uniform    True
-  Step         Saved    Savings   Savings
-  Step 2       87.5%     87.5%     98.4%
-  Step 4       75.0%     75.0%     93.8%
-  Step 6       50.0%     50.0%     75.0%
-  Step 8        0.0%     0.0%      0.0%
-  ----------- -------- --------- ---------
-
-  : Quadratic attention cost analysis. Early detection
-  disproportionately saves expensive late-context tokens.
-:::
-::::
-:::::
-::::::
+| ----------- -------- --------- --------- |
+|---|
+| Detection |
+| Step |
+| Step 2 |
+| Step 4 |
+| Step 6 |
+| Step 8 |
+| ----------- -------- --------- --------- |
+| disproportionately saves expensive late-context tokens. |
 
 ## Scaling Implications
 
@@ -1205,7 +1054,6 @@ reference for the complete FPR landscape of StepShield.
   FPR quantifies how much of each detector's false positive behavior is
   attributable to adversarial hard-safe cases vs. general
   over-triggering.
-:::
 
 **Key observations.** (1) StaticGuard and HybridGuard exhibit
 *adversarial-specific* false positives: their benign FPR is near zero
@@ -1233,12 +1081,6 @@ conclusions would be unreliable. To address this, we evaluate LLMJudge
 using three models from *different* model families on the full
 1,278-trajectory training set (639 rogue + 639 clean).
 
-::::: center
-:::: small
-::: sc
-:::
-::::
-:::::
 
 **Key findings.** (1) Gemini-2.5-flash (Google) achieves *higher* recall
 than GPT-4.1-mini (80.9% vs. 77.9%), despite being a completely
@@ -1254,8 +1096,7 @@ property of rogue behavior rather than model-specific artifacts.
 
 **Run-to-run variance.** GPT-4.1-mini achieves 77.9% recall in this
 experiment vs. 91.2% in the paraphrase study
-(Table [\[tab:paraphrase\]](#tab:paraphrase){reference-type="ref"
-reference="tab:paraphrase"}), despite identical model, temperature
+(Table ), despite identical model, temperature
 (0.0), and data. This 13.3pp gap reflects well-documented LLM
 non-determinism [@chen2024chatgpt]. We frame this high variance not as a
 limitation, but as a key *finding* of our work: it empirically
@@ -1277,26 +1118,16 @@ recall was 77.9% and 91.2%, yielding a mean of 84.6% with a standard
 deviation of 9.4%. This provides an empirical estimate of run-to-run
 variance for LLM-based detectors at temperature=0.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:cross_model_category}
-  Cat    Gemini   Mini    Nano
-  ----- -------- ------- -------
-  DEC    73.5%    64.7%   19.6%
-  INV    83.3%    78.7%   47.2%
-  RES    67.6%    62.7%   18.6%
-  SEC    82.4%    87.3%   50.0%
-  TST    92.8%    84.7%   20.7%
-  UFO    84.2%    87.7%   22.8%
-
-  : Per-category recall across model families. Spearman rank correlation
-  of category difficulty: $\rho=0.714$ (gemini vs. mini), confirming
-  consistent difficulty ranking across model families.
-:::
-::::
-:::::
-::::::
+| Cat | Gemini | Mini | Nano |
+|---|---|---|---|
+| DEC | 73.5% | 64.7% | 19.6% |
+| INV | 83.3% | 78.7% | 47.2% |
+| RES | 67.6% | 62.7% | 18.6% |
+| SEC | 82.4% | 87.3% | 50.0% |
+| TST | 92.8% | 84.7% | 20.7% |
+| UFO | 84.2% | 87.7% | 22.8% |
+| of category difficulty: $\rho=0.714$ (gemini vs. mini), confirming |  |  |  |
+| consistent difficulty ranking across model families. |  |  |  |
 
 The Spearman rank correlation of per-category recall between Gemini and
 GPT-4.1-mini is $\rho=0.714$, indicating strong agreement on which
@@ -1314,10 +1145,8 @@ rather than semantic understanding of rogue behavior, we paraphrase all
 to avoid circular paraphrasing) and re-evaluate detection with LLMJudge
 (GPT-4.1-mini). The baseline recall on training data (91.2%) differs
 from both the test-set recall in
-Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-reference="tab:fpr_results"} (95.1%) and the cross-model recall in
-Table [\[tab:cross_model\]](#tab:cross_model){reference-type="ref"
-reference="tab:cross_model"} (77.9%); the former reflects the train/test
+Table  (95.1%) and the cross-model recall in
+Table  (77.9%); the former reflects the train/test
 split, and the latter reflects run-to-run LLM non-determinism (see
 Section [18](#app:cross_model){reference-type="ref"
 reference="app:cross_model"}). The relevant comparison is the
@@ -1325,12 +1154,6 @@ reference="app:cross_model"}). The relevant comparison is the
 driven by memorized surface patterns, paraphrasing would substantially
 reduce recall.
 
-::::: center
-:::: small
-::: sc
-:::
-::::
-:::::
 
 **Key findings.** (1) Overall recall drops by only 0.16 percentage
 points after paraphrasing (91.2% $\to$ 91.1%), demonstrating that
@@ -1353,31 +1176,19 @@ performance degrades with increasing subtlety, validating the severity
 grading scheme. Following the cascade design analysis, we report results
 at the *high-confidence threshold* ($\geq 0.7$) used for cascade routing
 decisions. The any-step-flagged recall (34.9%) is reported in
-Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-reference="tab:fpr_results"}.
+Table .
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:severity_detection}
-  Level            N    Recall   FPR     EIR
-  -------------- ----- -------- ------ -------
-  L1 (Obvious)    213   18.3%     --    10.8%
-  L2 (Clear)      213    8.0%     --    3.8%
-  L3 (Subtle)     213    8.0%     --    4.2%
-  Clean           639     --     5.3%    --
-
-  : Detection performance by severity level (StaticGuard,
-  high-confidence threshold $\geq 0.7$). The 2.3$\times$ recall gap
-  between L1 and L2/L3 confirms that the severity grading captures
-  meaningful difficulty differences. See
-  Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-  reference="tab:fpr_results"} for the primary any-step-flagged
-  evaluation.
-:::
-::::
-:::::
-::::::
+| Level | N | Recall | FPR | EIR |
+|---|---|---|---|---|
+| L1 (Obvious) | 213 | 18.3% | -- | 10.8% |
+| L2 (Clear) | 213 | 8.0% | -- | 3.8% |
+| L3 (Subtle) | 213 | 8.0% | -- | 4.2% |
+| Clean | 639 | -- | 5.3% | -- |
+| high-confidence threshold $\geq 0.7$). The 2.3$\times$ recall gap |  |  |  |  |
+| between L1 and L2/L3 confirms that the severity grading captures |  |  |  |  |
+| meaningful difficulty differences. See |  |  |  |  |
+| Table  for the primary any-step-flagged |  |  |  |  |
+| evaluation. |  |  |  |  |
 
 **Key findings.** (1) L1 trajectories are detected at 2.3$\times$ the
 rate of L2/L3, confirming that the severity grading captures meaningful
@@ -1386,12 +1197,6 @@ suggesting that the distinction between "clear" and "subtle" is less
 pronounced for rule-based detectors---a finding that motivates semantic
 (LLM-based) approaches for fine-grained severity discrimination.
 
-::::: center
-:::: small
-::: sc
-:::
-::::
-:::::
 
 # Trajectory Length Sensitivity {#app:length}
 
@@ -1401,24 +1206,14 @@ median=13). As in Appendix [20](#app:severity){reference-type="ref"
 reference="app:severity"}, we report results at the high-confidence
 threshold ($\geq 0.7$).
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:length}
-  Bin       $N_r$   Recall   FPR    EIR    DetPos
-  -------- ------- -------- ------ ------ --------
-  1--5       19      0.0%    0.0%   0.0%     --
-  6--10      196     7.7%    3.3%   2.6%    0.57
-  11--15     239    14.2%    4.9%   8.8%    0.46
-  16--20     185    13.0%    8.3%   7.6%    0.45
-
-  : Detection performance by trajectory length (StaticGuard,
-  high-confidence threshold $\geq 0.7$). Longer trajectories provide
-  more signal but also more opportunity for false positives.
-:::
-::::
-:::::
-::::::
+| Bin | $N_r$ | Recall | FPR | EIR | DetPos |
+|---|---|---|---|---|---|
+| 1--5 | 19 | 0.0% | 0.0% | 0.0% | -- |
+| 6--10 | 196 | 7.7% | 3.3% | 2.6% | 0.57 |
+| 11--15 | 239 | 14.2% | 4.9% | 8.8% | 0.46 |
+| 16--20 | 185 | 13.0% | 8.3% | 7.6% | 0.45 |
+| high-confidence threshold $\geq 0.7$). Longer trajectories provide |  |  |  |  |  |
+| more signal but also more opportunity for false positives. |  |  |  |  |  |
 
 **Key findings.** (1) Very short trajectories (1--5 steps) are
 undetectable by StaticGuard, as they provide insufficient context for
@@ -1436,36 +1231,23 @@ We analyze the confidence scores produced by StaticGuard to assess
 calibration quality. We apply a *high-confidence threshold* of 0.7 to
 StaticGuard's per-trajectory max-confidence scores, which is stricter
 than the any-step-flagged protocol used in the main results
-(Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-reference="tab:fpr_results"}). This stricter threshold reveals how
+(Table ). This stricter threshold reveals how
 confidence scores distribute across correct and incorrect predictions.
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:confidence}
-  Outcome     N    Mean     Med     Std
-  --------- ----- ------- ------- -------
-  TP         73    0.801   0.850   0.091
-  FP         34    0.740   0.700   0.074
-  TN         605   0.048   0.000   0.161
-  FN         566   0.061   0.000   0.180
-
-  : Confidence score distributions by prediction outcome (StaticGuard,
-  high-confidence threshold $\geq 0.7$). This is a *stricter* operating
-  point than the main results, which use any-step-flagged detection; see
-  Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-  reference="tab:fpr_results"} for the primary evaluation.
-:::
-::::
-:::::
-::::::
+| Outcome | N | Mean | Med | Std |
+|---|---|---|---|---|
+| TP | 73 | 0.801 | 0.850 | 0.091 |
+| FP | 34 | 0.740 | 0.700 | 0.074 |
+| TN | 605 | 0.048 | 0.000 | 0.161 |
+| FN | 566 | 0.061 | 0.000 | 0.180 |
+| high-confidence threshold $\geq 0.7$). This is a *stricter* operating |  |  |  |  |
+| point than the main results, which use any-step-flagged detection; see |  |  |  |  |
+| Table  for the primary evaluation. |  |  |  |  |
 
 **Protocol note.** At this stricter threshold, StaticGuard detects
 73/639 (11.4%) rogue trajectories with high confidence, compared to
 223/639 (34.9%) under the any-step-flagged protocol in
-Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-reference="tab:fpr_results"}. The 150 trajectories that are detected by
+Table . The 150 trajectories that are detected by
 the main protocol but not here have max-confidence scores between 0.01
 and 0.69---they trigger low-confidence pattern matches that are
 sufficient for flagging but fall below the high-confidence threshold.
@@ -1490,33 +1272,21 @@ fine-grained sweep across the full \[0.3, 0.9\] range. This table
 isolates the *first-pass* (StaticGuard-only) component of the cascade to
 show how the escalation threshold $\tau$ controls the speed--accuracy
 trade-off. The full cascade recall (including LLM fallback) is reported
-in Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-reference="tab:fpr_results"}.
+in Table .
 
-:::::: center
-::::: small
-:::: sc
-::: {#tab:threshold_sweep}
-  $\tau$    Esc%   Static Rec.   B-FPR   Lat(ms)
-  -------- ------ ------------- ------- ---------
-  0.3       0.0%      2.7%       1.6%      75
-  0.4       0.0%      2.7%       1.6%      75
-  0.5       0.0%      2.7%       1.6%      75
-  0.6       0.0%      2.7%       1.6%      75
-  0.7       1.0%      2.7%       1.1%      92
-  0.8       1.6%      2.7%       0.8%      100
-  0.9       1.9%      2.7%       0.7%      107
-
-  : First-pass cascade threshold sweep (StaticGuard component only).
-  "Static Recall" is the recall of the StaticGuard first pass alone; the
-  full cascade recall (58.5% at $\tau{=}0.7$,
-  Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-  reference="tab:fpr_results"}) additionally includes LLM fallback on
-  escalated trajectories.
-:::
-::::
-:::::
-::::::
+| $\tau$ | Esc% | Static Rec. | B-FPR | Lat(ms) |
+|---|---|---|---|---|
+| 0.3 | 0.0% | 2.7% | 1.6% | 75 |
+| 0.4 | 0.0% | 2.7% | 1.6% | 75 |
+| 0.5 | 0.0% | 2.7% | 1.6% | 75 |
+| 0.6 | 0.0% | 2.7% | 1.6% | 75 |
+| 0.7 | 1.0% | 2.7% | 1.1% | 92 |
+| 0.8 | 1.6% | 2.7% | 0.8% | 100 |
+| 0.9 | 1.9% | 2.7% | 0.7% | 107 |
+| "Static Recall" is the recall of the StaticGuard first pass alone; the |  |  |  |  |
+| full cascade recall (58.5% at $\tau{=}0.7$, |  |  |  |  |
+| Table ) additionally includes LLM fallback on |  |  |  |  |
+| escalated trajectories. |  |  |  |  |
 
 **Interpreting the table.** The "Static Rec." column reports the recall
 of the StaticGuard first pass *in isolation*---i.e., the fraction of
@@ -1524,8 +1294,7 @@ rogue trajectories that StaticGuard catches with high confidence
 *before* any LLM escalation. This is constant at 2.7% across all
 thresholds because the high-confidence detections are
 threshold-independent. The full HybridGuard cascade recall of 58.5%
-(Table [\[tab:fpr_results\]](#tab:fpr_results){reference-type="ref"
-reference="tab:fpr_results"}) is achieved by the LLM fallback on
+(Table ) is achieved by the LLM fallback on
 escalated trajectories; the purpose of this sweep is to show how $\tau$
 controls the *escalation rate*, *FPR*, and *latency*, not the total
 recall.

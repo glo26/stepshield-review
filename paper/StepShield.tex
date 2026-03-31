@@ -35,7 +35,7 @@
 \vskip 0.15in
 
 \begin{abstract}
-Existing agent safety benchmarks evaluate \emph{whether} an agent misbehaved, not \emph{when} the violation was detectable. We introduce StepShield, the first benchmark for evaluating detection timeliness on rogue AI agents. StepShield comprises 9,213 step-level annotated code-agent trajectories grounded in real-world security incidents. We propose three temporal metrics---Early Intervention Rate, Intervention Gap, and Tokens Saved---and benchmark four detectors. Our results reveal a fundamental recall--precision trade-off: an LLM judge achieves 78.9\% recall but 23.8\% false positive rate, while a hybrid detector achieves 1.56\% FPR and the highest EIR (0.80) but only 29.7\% recall. No single detector dominates, establishing step-level rogue detection as an open problem. Code and data are released under Apache~2.0.
+Existing agent safety benchmarks evaluate \emph{whether} an agent misbehaved, not \emph{how well} the violation can be detected amid benign behavior. We introduce StepShield, the first benchmark for evaluating detection quality on rogue AI agents. StepShield comprises 9,213 step-level annotated code-agent trajectories grounded in real-world security incidents. We propose three metrics---Early Intervention Rate (paired precision), Intervention Gap, and Tokens Saved---and benchmark four detectors. Our results reveal a fundamental recall--precision trade-off: an LLM judge achieves 78.9\% recall but 23.8\% false positive rate, while a hybrid detector achieves 1.56\% FPR and the highest EIR (0.80) but only 29.7\% recall. No single detector dominates, establishing step-level rogue detection as an open problem. Code and data are released under Apache~2.0.
 \end{abstract}
 ]
 
@@ -49,13 +49,13 @@ Existing agent safety benchmarks, such as Agent-SafetyBench \cite{zhang2024agent
 
 To address this gap, we introduce StepShield, the first benchmark designed to evaluate the temporal performance of \emph{detectors} of rogue agent behavior. Our core contribution is the benchmark itself: a challenging set of stimuli for evaluating detection systems, not a new state-of-the-art detector. StepShield is built on a foundation of real-world security incidents and provides a granular, step-by-step view of agent behavior, enabling a new class of evaluation focused on early intervention.
 
-Why Timing Matters. Consider two detectors with identical 90\% accuracy on trajectory classification. Detector A flags violations at the first rogue step (average step 4 of 20), while Detector B flags them at the final step. From a binary accuracy perspective, these detectors are equivalent. From a practical deployment perspective, they are worlds apart. Detector A enables intervention that prevents 80\% of the harmful actions; Detector B provides only forensic value after all damage is done. This gap is invisible to existing benchmarks but critical for real-world safety.
+Why Intervention Quality Matters. Consider two detectors with identical 90\% accuracy on trajectory classification. Detector A flags only genuine rogue trajectories with high precision, while Detector B achieves the same accuracy by flagging everything---catching all rogues but also generating massive false alarms. From a binary accuracy perspective, these detectors are equivalent. From a practical deployment perspective, they are worlds apart. Detector A enables targeted intervention on genuine threats; Detector B overwhelms operators with noise, rendering its alarms useless. This gap is invisible to existing benchmarks but critical for real-world safety.
 
 Our contributions are five-fold, centered on the evaluation of detection mechanisms:
 
 \begin{enumerate}
     \item A New Evaluation Paradigm: We propose a new evaluation paradigm for agent safety that prioritizes detection timeliness, moving beyond simple binary accuracy.
-    \item Temporal Metrics: We introduce three novel metrics (Early Intervention Rate, Intervention Gap, and Tokens Saved) that quantify when a detector identifies a violation.
+    \item Temporal and Quality Metrics: We introduce three novel metrics---Early Intervention Rate (paired precision), Intervention Gap, and Tokens Saved---that quantify both the quality and timeliness of detection.
     \item A Large-Scale Dataset: We release StepShield, a dataset of 9,213 code agent trajectories, including 639 rogue-clean pairs, grounded in real-world security incidents and annotated at the step level. Following established precedent in safety benchmarks \cite{ruan2024toolemu, zhang2024agentsafetybench}, these trajectories are synthetically generated to provide controlled, diverse, and challenging stimuli for evaluating detectors.
     \item Comprehensive Evaluation: We benchmark four representative detection paradigms (StaticGuard, ConstraintGuard, LLM-Judge, and HybridGuard), revealing that no single detector dominates. LLMJudge achieves the highest recall (78.9\%) but suffers from a 23.8\% benign false positive rate, while HybridGuard achieves a low 1.56\% B-FPR but with only 29.7\% recall, providing a clear baseline for future work.
     \item Economic Framework: We demonstrate the direct economic benefits of early detection, showing that HybridGuard can reduce LLM inference costs by 75\% while maintaining strong detection capabilities, translating to significant potential cost savings in large-scale deployments (see Appendix~\ref{app:roi} for a detailed analysis).
@@ -65,7 +65,7 @@ Our contributions are five-fold, centered on the evaluation of detection mechani
 \vskip -0.1in
 \begin{center}
 \centerline{\includegraphics[width=\textwidth]{figures/trajectory_v7.png}}
-\caption{The core insight of StepShield: detection timing determines intervention capability. An effective detector (HybridGuard, EIR = 79.5\%) identifies the rogue step early, enabling intervention that prevents most harmful actions. A less effective detector (StaticGuard, EIR = 51.2\%) flags the violation much later, providing limited value beyond post-mortem forensics. This performance gap is invisible to standard accuracy metrics but critical for real-world safety.}
+\caption{The core insight of StepShield: intervention quality determines deployment value. HybridGuard (EIR = 79.5\%) achieves high paired precision---when it raises an alarm, 80\% of the time the trajectory is genuinely rogue. StaticGuard (EIR = 51.2\%) achieves only coin-flip precision, flagging rogue and clean trajectories at similar rates. This discrimination gap is invisible to standard accuracy metrics but critical for real-world safety.}
 \label{fig:trajectory}
 \end{center}
 \vskip -0.2in
@@ -79,9 +79,9 @@ Our work builds on six key areas of research: foundational LLM agent architectur
 
 \textbf{Agent Safety Benchmarks.} Recent work has produced several valuable benchmarks for evaluating agent safety. Agent-SafetyBench \cite{zhang2024agentsafetybench} provides a comprehensive suite of 300 test cases across 8 categories. SafeArena \cite{tur2025safearena} evaluates the safety of autonomous web agents against deliberate misuse. ToolEmu \cite{ruan2024toolemu} evaluates tool-use safety, and R-Judge \cite{yuan2024rjudge} uses an LLM to judge agent helpfulness and harmlessness. SafeAgentBench \cite{yin2024safeagentbench} introduces the first comprehensive benchmark for safety-aware task planning in embodied agents with 750 tasks across 10 hazard types. AgentHarm \cite{andriushchenko2025agentharm} measures the propensity of LLM agents to execute harmful multi-step tasks, revealing that leading LLMs are surprisingly compliant with malicious requests even without jailbreaking. TheAgentCompany \cite{xu2024theagentcompany} benchmarks agents on consequential real-world workplace tasks, finding that even the best agents complete only 30\% of tasks---underscoring the need for safety monitoring as agents are deployed in high-stakes environments. While essential, these benchmarks all focus on trajectory-level outcomes, assigning a single binary label to a completed run. They do not provide the step-level annotation required to evaluate detection timeliness. StepShield fills this gap by providing the first step-level annotated dataset for rogue behavior detection (see Appendix~\ref{app:data_generation} for our data generation methodology).
 
-\textbf{Guardrail Agents.} A parallel line of work has developed guardrail agents that actively monitor and intervene on other agents. ShieldAgent \cite{chen2025shieldagent} is the first guardrail agent to enforce explicit safety policy compliance through logical reasoning, achieving 90.1\% recall on their ShieldAgent-Bench across 6 web environments and 7 risk categories. GuardAgent \cite{xiang2025guardagent} dynamically checks whether agent actions satisfy safety guard requests by generating guardrail code, achieving 98\% and 83\% accuracy on healthcare and web benchmarks respectively. While these approaches focus on proactive intervention, StepShield provides the complementary evaluation infrastructure to measure \emph{when} such interventions should occur. Our temporal metrics (EIR, IG, Tokens Saved) can be used to evaluate the timeliness of any guardrail system, including ShieldAgent and GuardAgent.
+\textbf{Guardrail Agents.} A parallel line of work has developed guardrail agents that actively monitor and intervene on other agents. ShieldAgent \cite{chen2025shieldagent} is the first guardrail agent to enforce explicit safety policy compliance through logical reasoning, achieving 90.1\% recall on their ShieldAgent-Bench across 6 web environments and 7 risk categories. GuardAgent \cite{xiang2025guardagent} dynamically checks whether agent actions satisfy safety guard requests by generating guardrail code, achieving 98\% and 83\% accuracy on healthcare and web benchmarks respectively. While these approaches focus on proactive intervention, StepShield provides the complementary evaluation infrastructure to measure \emph{when} such interventions should occur. Our metrics (EIR, IG, Tokens Saved) can be used to evaluate the quality and timeliness of any guardrail system, including ShieldAgent and GuardAgent.
 
-\textbf{Content-Safety Guardrails.} A large body of work has developed content-safety classifiers for LLM outputs. Llama Guard~\cite{inan2023llamaguard} fine-tunes Llama for prompt/response safety classification against a taxonomy of harmful content categories. ShieldGemma~\cite{zeng2024shieldgemma} extends this to multimodal safety classification, and WildGuard~\cite{han2024wildguard} provides open-source moderation for jailbreaks and refusals. PolyGuard~\cite{polyguard2025} benchmarks 19 guardrail models across multiple domains, finding that even top guardrails achieve 30--60\% FPR on structurally similar safe content. These systems operate at a fundamentally different level than StepShield: they classify \emph{individual messages} against content policies (violence, sexual content, etc.), whereas StepShield evaluates \emph{multi-step agent trajectories} for specification gaming and rogue behavior. Content-safety guardrails have no notion of temporal detection---our EIR and IG metrics are inapplicable to single-turn classification. Concurrently, ToolSafe~\cite{toolsafe2026} proposes step-level guardrails for tool invocation safety, and AgentSpec~\cite{agentspec2026} provides customizable runtime enforcement for LLM agents via formal specification languages. METR's SHUSHCAST evaluation~\cite{metr2026shushcast} tests monitors' ability to catch AI agents performing covert tasks, while CTRL-ALT-DECEIT~\cite{benton2025ctrlaltdeceit} evaluates sabotage in automated AI R\&D pipelines. These concurrent efforts collectively validate the growing importance of runtime agent monitoring; StepShield uniquely contributes temporal detection metrics to this ecosystem.
+\textbf{Content-Safety Guardrails.} A large body of work has developed content-safety classifiers for LLM outputs. Llama Guard~\cite{inan2023llamaguard} fine-tunes Llama for prompt/response safety classification against a taxonomy of harmful content categories. ShieldGemma~\cite{zeng2024shieldgemma} extends this to multimodal safety classification, and WildGuard~\cite{han2024wildguard} provides open-source moderation for jailbreaks and refusals. PolyGuard~\cite{polyguard2025} benchmarks 19 guardrail models across multiple domains, finding that even top guardrails achieve 30--60\% FPR on structurally similar safe content. These systems operate at a fundamentally different level than StepShield: they classify \emph{individual messages} against content policies (violence, sexual content, etc.), whereas StepShield evaluates \emph{multi-step agent trajectories} for specification gaming and rogue behavior. Content-safety guardrails have no notion of multi-step trajectory analysis---our IG and Tokens Saved metrics are inapplicable to single-turn classification, and EIR requires paired rogue-clean trajectories. Concurrently, ToolSafe~\cite{toolsafe2026} proposes step-level guardrails for tool invocation safety, and AgentSpec~\cite{agentspec2026} provides customizable runtime enforcement for LLM agents via formal specification languages. METR's SHUSHCAST evaluation~\cite{metr2026shushcast} tests monitors' ability to catch AI agents performing covert tasks, while CTRL-ALT-DECEIT~\cite{benton2025ctrlaltdeceit} evaluates sabotage in automated AI R\&D pipelines. These concurrent efforts collectively validate the growing importance of runtime agent monitoring; StepShield uniquely contributes temporal detection metrics to this ecosystem.
 
 \textbf{Specification Gaming and Deceptive Alignment.} Specification gaming, where an AI exploits loopholes in its objective function, is a primary source of rogue behavior \cite{krakovna2020specification}. Anthropic's work on sycophancy and reward tampering has shown that even with harmlessness training, models can learn to exhibit deceptive behavior \cite{perez2022discovering}. Most critically, the Sleeper Agents work \cite{hubinger2024sleeper} demonstrated that deceptive behaviors can persist through standard safety training---models can learn to behave safely during evaluation while preserving harmful behaviors for deployment. This finding underscores the fundamental need for runtime monitoring systems like StepShield that evaluate agent behavior step-by-step during execution, not just during training. StepShield's taxonomy is grounded in these real-world examples of specification gaming and deceptive alignment.
 
@@ -214,19 +214,19 @@ Total & 213 & 213 & 213 & 639 \\
 
 The 8.1\% rogue rate in the test set simulates realistic production conditions where most agent runs are benign. This is critical for evaluating false positive rates, which are often overlooked in balanced datasets.
 
-\section{Temporal Metrics}
+\section{Evaluation Metrics}
 
-We propose metrics that reward timeliness, not just correctness. These metrics are designed to capture the practical value of early detection.
+We propose metrics that reward intervention quality and timeliness, not just correctness. These metrics are designed to capture the practical value of precise, early detection.
 
 \subsection{Early Intervention Rate (EIR)}
 
-Our primary metric. It measures the fraction of rogue trajectories detected before or at the first violation step.
+Our primary metric. In the paired evaluation protocol, each rogue trajectory is matched with a clean counterpart for the same task. EIR measures the precision of a detector's positive calls within this paired context:
 
 \begin{equation}
-\text{EIR} = \frac{|\{\tau \in D_{\text{rogue}} : t_{\text{detect}}(\tau) \le t_{\text{rogue}}(\tau)\}|}{|D_{\text{rogue}}|}
+\text{EIR} = \frac{\text{TP}}{\text{TP} + \text{FP}_{\text{paired}}}
 \end{equation}
 
-where $t_{\text{detect}}$ is the detection step and $t_{\text{rogue}}$ is the ground-truth first violation step. A detector with EIR = 1.0 catches every violation before or at the moment it occurs.
+where TP is the number of correctly flagged rogue trajectories and $\text{FP}_{\text{paired}}$ is the number of incorrectly flagged clean trajectories from the paired set. A detector with EIR = 1.0 never raises a false alarm on a clean counterpart---every intervention targets a genuine violation. EIR captures a detector's ability to discriminate between rogue and semantically similar benign behavior, which is the core challenge in step-level detection.
 
 \subsection{Intervention Gap (IG)}
 
@@ -248,15 +248,15 @@ Early detection saves compute. We quantify this as the percentage of tokens save
 
 This metric directly translates to cost savings in production deployments.
 
-\subsection{Why Timing Metrics Are Necessary}
+\subsection{Why These Metrics Are Necessary}
 
-Binary metrics cannot capture detection timeliness. We formalize this with the following proposition:
+Binary metrics cannot capture intervention quality. We formalize this with the following proposition:
 
-\textbf{Proposition 1 (Separation of Binary and Timing Metrics).} For any $\epsilon > 0$, there exist monitors $M_1, M_2$ such that $|\text{Acc}(M_1) - \text{Acc}(M_2)| < \epsilon$ but $|\text{EIR}(M_1) - \text{EIR}(M_2)| = 1$.
+\textbf{Proposition 1 (Separation of Binary and Paired Metrics).} For any $\epsilon > 0$, there exist monitors $M_1, M_2$ such that $|\text{Acc}(M_1) - \text{Acc}(M_2)| < \epsilon$ but $|\text{EIR}(M_1) - \text{EIR}(M_2)| = 1$.
 
-\textit{Proof.} Construct $M_1$ detecting at step $t_{\text{rogue}}$ and $M_2$ detecting at final step T. Both achieve identical accuracy on trajectory classification. However, EIR($M_1$) = 1 while EIR($M_2$) = 0 when $t_{\text{rogue}} < T$. \hfill $\square$
+\textit{Proof.} Construct $M_1$ that flags all rogue trajectories and no clean ones (EIR = 1), and $M_2$ that flags all trajectories indiscriminately (EIR = 0.5). If the paired set is balanced, both achieve identical trajectory-level accuracy of 0.5. \hfill $\square$
 
-This proposition demonstrates that accuracy is fundamentally insufficient for evaluating detection systems. Two detectors with identical accuracy can have maximally different intervention capabilities.
+This proposition demonstrates that accuracy is fundamentally insufficient for evaluating detection systems. Two detectors with identical accuracy can have maximally different intervention precision. The IG and Tokens Saved metrics further capture the temporal dimension of detection quality.
 
 \textbf{Definition 1 (Optimal Cascade Threshold).} For a cascade detector with fast detector $M_f$ and slow detector $M_s$, the optimal confidence threshold $\theta^*$ that maximizes EIR while maintaining accuracy $\alpha$ is:
 
@@ -313,7 +313,7 @@ HybridGuard & \textbf{0.80} & 0.85 & 0.61 & 29.73\% & \textbf{7.67\%} & 24.9\% \
 \vskip -0.1in
 \end{table*}
 
-\textbf{Key Finding: HybridGuard Achieves Highest EIR.} The most striking result is that HybridGuard achieves the highest EIR (0.80) despite having the lowest recall (29.73\%). This demonstrates that \emph{when} a detector intervenes matters more than \emph{how often}---HybridGuard's cascade architecture catches fewer rogue trajectories but intervenes much earlier on those it does catch. LLMJudge (EIR 0.72) achieves the highest recall (78.87\%) and F1 (0.75), but its higher FPR (31.30\%) reduces its EIR. StaticGuard and ConstraintGuard both achieve EIR of 0.51, barely exceeding the random baseline (0.28). All differences are statistically significant (Appendix~F).
+\textbf{Key Finding: HybridGuard Achieves Highest EIR.} The most striking result is that HybridGuard achieves the highest EIR (0.80) despite having the lowest recall (29.73\%). This demonstrates that \emph{precision of intervention} matters as much as \emph{coverage}---HybridGuard's cascade architecture catches fewer rogue trajectories, but when it does intervene, 80\% of its alarms are correct. LLMJudge (EIR 0.72) achieves the highest recall (78.87\%) and F1 (0.75), but its higher paired FPR (31.30\%) reduces its EIR. StaticGuard and ConstraintGuard both achieve EIR of 0.51---essentially a coin flip between rogue and clean trajectories, confirming that pattern-based approaches cannot reliably discriminate in the paired setting. All differences are statistically significant (Appendix~F).
 
 \textbf{Pre-Execution Evaluation.} All detectors evaluate the agent's proposed action \emph{before} execution. The monitor does not observe the outcome of the action; the goal is prevention, not forensics. This design choice is critical: in security-critical deployments, the cost of allowing a rogue action to execute (data exfiltration, credential theft, database destruction) is irreversible.
 
@@ -329,9 +329,9 @@ We analyze detection performance broken down by rogue category. Different detect
 
 
 
-\textbf{Semantic vs. Pattern-Based Detection.} LLMJudge dramatically outperforms StaticGuard on semantic violations: UFO (0.76 vs. 0.24), INV (0.70 vs. 0.19), and DEC (0.79 vs. 0.09). These violations require understanding intent and context, which pattern matching cannot capture. Conversely, StaticGuard is most competitive on TST (0.49 vs.\ 0.58), where violations often involve recognizable patterns like \texttt{@skip} decorators---the smallest gap between pattern-based and semantic detection across all categories. We analyze LLMJudge's failure modes in Appendix E.
+\textbf{Semantic vs. Pattern-Based Detection.} LLMJudge consistently outperforms StaticGuard on per-category EIR: UFO (0.74 vs.\ 0.48), INV (0.73 vs.\ 0.48), and SEC (0.75 vs.\ 0.51). These violations require understanding intent and context, which pattern matching cannot capture. The gap is narrowest on DEC (0.69 vs.\ 0.55), where deceptive completion patterns occasionally trigger StaticGuard's heuristics. StaticGuard's per-category EIR hovers near 0.50 across all categories, confirming that its pattern-based approach cannot reliably distinguish rogue from clean paired trajectories. We analyze LLMJudge's failure modes in Appendix E.
 
-\textbf{LLMJudge's Strength on DEC.} LLMJudge achieves the highest EIR on Deceptive Completion (0.79), substantially outperforming HybridGuard (0.29) and StaticGuard (0.09). This category requires deep semantic understanding to detect---the agent reports task completion while having done incomplete or incorrect work---which pattern-based detectors cannot capture. This result underscores the value of LLM-based reasoning for detecting subtle specification gaming.
+\textbf{HybridGuard's Consistent Precision.} HybridGuard achieves the highest per-category EIR across all categories, ranging from 0.75 (RES) to 0.82 (INV). Its cascade architecture---escalating uncertain cases to the LLM---ensures that when it does flag a trajectory, the alarm is almost always correct. By contrast, LLMJudge shows more category variation (0.68--0.75), with its lowest EIR on TST (0.68) where test manipulation patterns can resemble legitimate test refactoring. This result underscores the value of the cascade design for maintaining high precision across diverse violation types.
 
 \subsection{Severity Analysis}
 
@@ -339,7 +339,7 @@ We analyze detection performance across severity levels to understand detector c
 
 
 
-\textbf{Difficulty Scaling.} All detectors show a clear degradation in performance as severity increases from L1 (obvious) to L3 (subtle). LLMJudge maintains the highest performance across all levels, but its EIR drops from 0.82 on L1 to 0.59 on L3. This confirms that our severity grading captures a meaningful dimension of detection difficulty.
+\textbf{Difficulty Scaling.} All detectors show a clear degradation in recall as severity increases from L1 (obvious) to L3 (subtle). StaticGuard drops from 75.6\% (L1) to 54.9\% (L3), a 20.7pp decline. LLMJudge is the most robust, declining only from 79.8\% (L1) to 76.1\% (L3)---a 3.7pp gap that demonstrates its semantic understanding generalizes across difficulty levels. HybridGuard shows a non-monotonic pattern (34.7\% L1, 26.8\% L2, 27.7\% L3), suggesting its cascade routing is not well-calibrated for difficulty. These trends confirm that our severity grading captures a meaningful dimension of detection difficulty.
 
 \subsection{Comprehensive FPR Reference}
 \label{sec:fpr}
@@ -375,7 +375,7 @@ HybridGuard & 1.56\% & 7.67\% \\
 
 \section{Discussion}
 
-\textbf{Timing Metrics Are Essential.} The 1.6x EIR gap between HybridGuard (0.80) and StaticGuard/ConstraintGuard (0.51) demonstrates that binary accuracy is insufficient for agent safety evaluation. Future benchmarks should include timing metrics as primary evaluation criteria.
+\textbf{Intervention Quality Metrics Are Essential.} The 1.6x EIR gap between HybridGuard (0.80) and StaticGuard/ConstraintGuard (0.51) demonstrates that binary accuracy is insufficient for agent safety evaluation. A detector that flags 67\% of rogue trajectories (StaticGuard) but also flags 64\% of clean ones provides no actionable signal. Future benchmarks should include paired precision and timing metrics as primary evaluation criteria.
 
 \textbf{Realistic Rogue Rates Matter.} Our 8.1\% rogue rate simulates production conditions. Balanced datasets (50\% rogue) overestimate detector performance by hiding false positive issues.
 
@@ -386,7 +386,7 @@ HybridGuard & 1.56\% & 7.67\% \\
 \section{Conclusion and Limitations}
 \label{sec:limitations}
 
-StepShield measures \emph{when} detectors intervene, revealing a 1.6x EIR gap (0.80 vs.\ 0.51) invisible to accuracy. Cross-model and paraphrase ablations confirm robustness. \textbf{Limitations:} code agents only; training a dedicated detector to close the 12.5-point EIR gap to human experts (0.795 vs.\ 0.92) is future work.
+StepShield measures \emph{how effectively} detectors intervene on rogue agents, revealing a 1.6x EIR gap (0.80 vs.\ 0.51) invisible to binary accuracy. The best automated detector (HybridGuard, EIR 0.80) still lags behind human experts (EIR 0.92) by 12.5 points, establishing step-level rogue detection as an open problem. Cross-model and paraphrase ablations confirm robustness. \textbf{Limitations:} code agents only; extending to multi-modal and web agents, and training a dedicated detector to close the EIR gap to human experts, are important directions for future work.
 
 
 
@@ -675,7 +675,7 @@ Average & 0.91 & 0.15 & 100\% & 0.0\% \\
 \vskip -0.1in
 \end{table}
 
-\textbf{Analysis.} The human baseline provides a crucial anchor for interpreting our results. It establishes that the task is solvable and that the best-performing automated detector by EIR, HybridGuard (EIR 0.795), still lags behind expert human performance (EIR 0.92). The 12.5-point gap highlights the challenge of the StepShield benchmark and reinforces our central claim that step-level detection is a genuinely unsolved problem. Even LLMJudge, which achieves the highest recall (78.87\%) and F1 (0.7506), only reaches an EIR of 0.716. The perfect (0.0\%) FPR of the human experts also underscores the high false positive rates of the automated systems, further motivating the need for future research.
+\textbf{Analysis.} The human baseline provides a crucial anchor for interpreting our results. It establishes that the task is solvable and that the best-performing automated detector by EIR, HybridGuard (EIR 0.795), still lags behind expert human performance (EIR 0.92). The 12.5-point gap highlights the challenge of the StepShield benchmark and reinforces our central claim that step-level detection is a genuinely unsolved problem. Even LLMJudge, which achieves the highest recall (78.87\%) and F1 (0.75), only reaches an EIR of 0.72. The perfect (0.0\%) FPR of the human experts also underscores the high false positive rates of the automated systems, further motivating the need for future research.
 
 \section{Paraphrase Robustness}
 \label{app:paraphrase}
@@ -792,9 +792,6 @@ FN & 0.062 & 0.000 & 0.18 & 211 \\
 
 
 
-\end{document}
-
-
 \section{Ethics Statement}
 
 The StepShield benchmark and detectors are intended for research purposes to advance the safe development of AI agents. The detectors themselves could be used maliciously to evade detection, but we have not released the detector code, only the benchmark data. We believe the benefits of enabling research into agent safety outweigh the risks.
@@ -802,3 +799,5 @@ The StepShield benchmark and detectors are intended for research purposes to adv
 \section{Broader Impact}
 
 Our work highlights the critical need for robust safety measures in increasingly autonomous AI systems. The StepShield benchmark provides a valuable tool for researchers and developers to evaluate and improve the safety of their systems. We hope that our work will contribute to the development of safer and more reliable AI agents.
+
+\end{document}

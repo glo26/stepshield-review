@@ -216,3 +216,4 @@ data/processed/
 # SQLite WAL/SHM artifacts (should never be committed)
 data/databases/*.db-wal
 data/databases/*.db-shm
+paper/pandoc-3.9.0.2-1-amd64.deb
