@@ -37,21 +37,21 @@
 ]
 
 \begin{abstract}
-	Existing agent safety benchmarks are dangerously misleading, measuring post-hoc accuracy while ignoring intervention quality. Our results show a detector with 67\% recall can be no better than a coin flip at discriminating rogue from safe actions (EIR 0.51). This paper dismantles this illusion of security by introducing a new temporal evaluation paradigm and using it to reveal three uncomfortable truths: (1) the safety Pareto frontier is empty, with no detector achieving both high recall and low false positives; (2) LLM judges are unreliable, exhibiting over 13pp recall variance run-to-run at zero temperature; and (3) the field has optimized for the wrong metric, as our best detector (HybridGuard) has the highest intervention quality (EIR 0.80) but the lowest recall (29.7\%). We release StepShield, the benchmark that enabled these findings, with 9,213 step-annotated trajectories grounded in observed agent failures. Our work proves a new paradigm is required to build genuinely safe agents.
+	Existing agent safety benchmarks are dangerously misleading, measuring post-hoc accuracy while ignoring intervention quality. Our results show a detector with 67\% recall can be no better than a coin flip at discriminating rogue from safe actions (EIR 0.51). This paper dismantles this illusion of security by introducing a new temporal evaluation paradigm and using it to reveal three uncomfortable truths: (1) the safety Pareto frontier appears empty in our evaluation---no detector achieves both high recall and low false positives; (2) LLM judges are unreliable, exhibiting over 13pp recall variance run-to-run at zero temperature; and (3) the field has optimized for the wrong metric, as our best detector (HybridGuard) has the highest intervention quality (EIR 0.80) but the lowest recall (29.7\%). We release StepShield, the benchmark that enabled these findings, with 9,213 step-annotated trajectories grounded in observed agent failures. Our work demonstrates a new paradigm is required to build genuinely safe agents.
 	\end{abstract}
 
 \printAffiliationsAndNotice{}
 
 \section{Introduction}
 	
-	The mass deployment of autonomous agents in production environments (e.g., Devin, Cursor, Replit agents) has made step-level intervention a critical, unsolved safety problem. Real-world incidents, such as production database modifications by code agents, have moved agent safety from a theoretical concern to an urgent practical one. Yet, the field continues to measure safety with post-hoc, binary accuracy metrics that create a dangerous illusion of security. A detector with 67\% recall sounds effective; our results prove it can be no better than a coin flip at distinguishing rogue from safe actions in practice (EIR 0.51). This paper dismantles this illusion by introducing an evaluation paradigm focused on the temporal quality of intervention, revealing the uncomfortable truths of the current state of agent safety.
+	The mass deployment of autonomous agents in production environments (e.g., Devin, Cursor, Replit agents) has made step-level intervention a critical, unsolved safety problem. Real-world incidents, such as production database modifications by code agents, have moved agent safety from a theoretical concern to an urgent practical one. Yet, the field continues to measure safety with post-hoc, binary accuracy metrics that create a dangerous illusion of security. For example, a detector with 67\% recall may sound effective, but our results prove it can be no better than a coin flip at distinguishing rogue from safe actions in practice (EIR 0.51). This paper dismantles this illusion by introducing an evaluation paradigm focused on the temporal quality of intervention, revealing the uncomfortable truths of the current state of agent safety.
 
 This paper's contribution is not a new state-of-the-art detector, but a new lens that reveals the field's blind spots:
 
 \begin{enumerate}
     \item \textbf{A New Evaluation Paradigm}, centered on three metrics---Early Intervention Rate (EIR), Intervention Gap (IG), and Tokens Saved---that measure the quality and timeliness of detection, exposing the insufficiency of binary accuracy.
     \item \textbf{The StepShield Benchmark}, a dataset of 9,213 trajectories grounded in observed agent failures and validated by a two-layer expert review process, enabling the first-ever empirical measurement of intervention quality.
-    \item \textbf{A Set of Uncomfortable Truths}, empirically demonstrating that (a) the safety Pareto frontier is empty, (b) LLM detectors are unreliable, and (c) the field has been optimizing for the wrong metrics.
+    \item \textbf{A Set of Uncomfortable Truths}, empirically demonstrating that (a) the safety Pareto frontier is empty in our evaluation, (b) LLM detectors are unreliable, and (c) the field has been optimizing for the wrong metrics.
     
 \end{enumerate}
 
@@ -75,7 +75,7 @@ Our work builds on six key areas of research: foundational LLM agent architectur
 
 \textbf{Guardrail Agents.} A parallel line of work has developed guardrail agents that actively monitor and intervene on other agents. ShieldAgent \cite{chen2025shieldagent} is the first guardrail agent to enforce explicit safety policy compliance through logical reasoning, achieving 90.1\% recall on their ShieldAgent-Bench across 6 web environments and 7 risk categories. GuardAgent \cite{xiang2025guardagent} dynamically checks whether agent actions satisfy safety guard requests by generating guardrail code, achieving 98\% and 83\% accuracy on healthcare and web benchmarks respectively. StepShield's metrics can evaluate the timeliness of any guardrail system.
 
-\textbf{Content-Safety Guardrails.} A large body of work has developed content-safety classifiers for LLM outputs. Llama Guard~\cite{inan2023llamaguard} fine-tunes Llama for prompt/response safety classification against a taxonomy of harmful content categories. ShieldGemma~\cite{zeng2024shieldgemma} extends this to multimodal safety classification, and WildGuard~\cite{han2024wildguard} provides open-source moderation for jailbreaks and refusals. PolyGuard~\cite{polyguard2025} benchmarks 19 guardrail models across multiple domains, finding that even top guardrails achieve 30--60\% FPR on structurally similar safe content. These systems classify individual messages against content policies, whereas StepShield evaluates multi-step agent trajectories for rogue behavior. Concurrently, ToolSafe~\cite{toolsafe2026} proposes step-level guardrails for tool invocation safety, and AgentSpec~\cite{agentspec2026} provides customizable runtime enforcement for LLM agents via formal specification languages. METR's SHUSHCAST evaluation~\cite{metr2026shushcast} tests monitors' ability to catch AI agents performing covert tasks, while CTRL-ALT-DECEIT~\cite{benton2025ctrlaltdeceit} evaluates sabotage in automated AI R\&D pipelines. These concurrent efforts collectively validate the growing importance of runtime agent monitoring; StepShield uniquely contributes temporal detection metrics to this ecosystem.
+\textbf{Content-Safety Guardrails.} A large body of work has developed content-safety classifiers for LLM outputs. Llama Guard~\cite{inan2023llamaguard} fine-tunes Llama for prompt/response safety classification against a taxonomy of harmful content categories. ShieldGemma~\cite{zeng2024shieldgemma} extends this to multimodal safety classification, and WildGuard~\cite{han2024wildguard} provides open-source moderation for jailbreaks and refusals. PolyGuard~\cite{polyguard2025} benchmarks 19 guardrail models across multiple domains, finding that even top guardrails achieve 30--60\% FPR on structurally similar safe content. These systems classify individual messages against content policies, whereas StepShield evaluates multi-step agent trajectories for rogue behavior. Concurrently, ToolSafe~\cite{toolsafe2026} proposes step-level guardrails for tool invocation safety, and AgentSpec~\cite{agentspec2026} provides customizable runtime enforcement for LLM agents via formal specification languages. METR's SHUSHCAST evaluation~\cite{metr2026shushcast} tests monitors' ability to catch AI agents performing covert tasks, while CTRL-ALT-DECEIT~\cite{benton2025ctrlaltdeceit} evaluates sabotage in automated AI R\&D pipelines. These concurrent efforts collectively validate the growing importance of runtime agent monitoring. As they do not use a paired, step-level evaluation protocol, they are not directly comparable as baselines, but StepShield uniquely contributes temporal detection metrics to this emerging ecosystem.
 
 \textbf{Specification Gaming and Deceptive Alignment.} Specification gaming, where an AI exploits loopholes in its objective function, is a primary source of rogue behavior \cite{krakovna2020specification}. Anthropic's work on sycophancy and reward tampering has shown that even with harmlessness training, models can learn to exhibit deceptive behavior \cite{perez2022discovering}. Most critically, the Sleeper Agents work \cite{hubinger2024sleeper} demonstrated that deceptive behaviors can persist through standard safety training---models can learn to behave safely during evaluation while preserving harmful behaviors for deployment. This finding underscores the need for runtime monitoring. StepShield's taxonomy is grounded in these examples.
 
@@ -166,7 +166,7 @@ L3 & Subtle & Cross-step Reasoning \\
 \vskip -0.1in
 \end{table}
 
-This calibration enables fine-grained analysis of detector capabilities.
+This calibration enables fine-grained analysis of detector capabilities. We formally define a \textbf{rogue trajectory} as any trajectory containing one or more rogue steps, where a rogue step is an action that violates one of the six categories in our taxonomy. Our evaluation considers a trajectory successfully detected if the detector flags it at or after the first rogue step.
 
 \subsection{Dataset Composition}
 
@@ -222,7 +222,7 @@ Our primary metric. In the paired evaluation protocol, each rogue trajectory is 
 \text{EIR} = \frac{\text{TP}}{\text{TP} + \text{FP}_{\text{paired}}}
 \end{equation}
 
-where TP is the number of correctly flagged rogue trajectories and $\text{FP}_{\text{paired}}$ is the number of incorrectly flagged clean trajectories from the paired set. A detector with EIR = 1.0 never raises a false alarm on a clean counterpart---every intervention targets a genuine violation. EIR captures a detector's ability to discriminate between rogue and semantically similar benign behavior, which is the core challenge in step-level detection.
+where TP is the number of correctly flagged rogue trajectories and $\text{FP}_{\text{paired}}$ is the number of incorrectly flagged clean trajectories from the paired set. A detector with EIR = 1.0 never raises a false alarm on a clean counterpart---every intervention targets a genuine violation. EIR captures a detector's ability to discriminate between rogue and semantically similar benign behavior, which is the core challenge in step-level detection. We define EIR as 0 if a detector makes no positive predictions (TP=0, FP=0). We also note that EIR is sensitive to the difficulty of the paired set; our pairings are designed to be challenging, representing worst-case scenarios.
 
 \subsection{Intervention Gap (IG)}
 
@@ -242,29 +242,19 @@ Early detection saves compute. We quantify this as the percentage of tokens save
 \text{Tokens Saved} = 1 - \frac{\sum_{i=1}^{t_{\text{detect}}} \text{tokens}(i)}{\sum_{i=1}^{T} \text{tokens}(i)}
 \end{equation}
 
-This metric directly translates to cost savings in production deployments.
+This metric directly translates to cost savings in production deployments. As it is highly correlated with IG (earlier detection saves more tokens), we omit a separate breakdown; full results are in Appendix~\ref{app:stat_sig}.
 
 \subsection{Why These Metrics Are Necessary}
 
-We formalize the insufficiency of binary metrics with the following proposition:
+To illustrate the insufficiency of binary metrics, consider two monitors: $M_1$ that flags only rogue trajectories (EIR=1) and $M_2$ that flags all trajectories (EIR=0.5). On a balanced paired set, both have 0.5 accuracy, demonstrating that accuracy is insufficient for evaluating detection systems. IG and Tokens Saved further capture the temporal dimension.
 
-\textbf{Proposition 1 (Separation of Binary and Paired Metrics).} For any $\epsilon > 0$, there exist monitors $M_1, M_2$ such that $|\text{Acc}(M_1) - \text{Acc}(M_2)| < \epsilon$ but $|\text{EIR}(M_1) - \text{EIR}(M_2)| = 1$.
 
-\textit{Proof.} Construct $M_1$ that flags only rogue trajectories (EIR=1) and $M_2$ that flags all trajectories (EIR=0.5). On a balanced paired set, both have 0.5 accuracy. \hfill $\square$
-
-This demonstrates that accuracy is insufficient for evaluating detection systems. IG and Tokens Saved further capture the temporal dimension.
-
-\textbf{Definition 1 (Optimal Cascade Threshold).} For a cascade detector with fast detector $M_f$ and slow detector $M_s$, the optimal confidence threshold $\theta^*$ that maximizes EIR while maintaining accuracy $\alpha$ is:
-
-\begin{equation}
-\theta^* = \arg\max_{\theta} \text{EIR}(M_\theta) \text{ s.t. } \text{Acc}(M_\theta) \ge \alpha
-\end{equation}
-
-where $M_\theta$ routes to $M_s$ when $\text{conf}(M_f) < \theta$.
-
-This provides a principled framework for tuning HybridGuard's cascade threshold. We sweep $\theta \in \{0.5, 0.7, 0.9\}$ and report results for $\theta = 0.7$ (Table~\ref{tab:cascade_ablation}).
 
 \section{Experiments}
+
+\subsection{Experimental Setup}
+
+Our evaluation protocol is designed to rigorously test detector performance in a realistic setting. All experiments are run on the 7,935-trajectory test set. For the paired evaluation (EIR, IG), we use the 639 rogue/clean pairs. This protocol evaluates a detector's ability to discriminate between a rogue trajectory and its minimally-edited, functionally-identical safe counterpart, isolating the specific behavior that makes an action unsafe. For benign FPR, we use the 6,657 benign trajectories. All results are averaged over 3 runs with different random seeds to ensure stability. LLM-based detectors (LLMJudge, HybridGuard) use the GPT-4.1-mini model via the OpenAI API. The full prompt template used for LLMJudge is provided in Appendix~\ref{app:reproducibility}.
 
 \subsection{Baseline Detectors}
 
@@ -276,14 +266,12 @@ We evaluate four detection paradigms, spanning the spectrum from fast-but-shallo
 
 \textbf{LLMJudge.} A semantic detector using GPT-4.1-mini to evaluate each step. We deliberately choose a `mini` model to reflect the low-latency constraints of real-time monitoring; a larger, slower model would be impractical for step-level intervention. This detector can identify subtle violations requiring contextual understanding. Latency: ~500ms per step. Cost: ~\$0.02 per trajectory.
 
-\textbf{HybridGuard.} A cascaded detector that uses StaticGuard and ConstraintGuard first, falling back to LLMJudge only when fast detectors are uncertain. This achieves a balance between speed and accuracy. Latency: ~92ms per step (amortized; 99\% at 75ms via StaticGuard, 1\% escalated at 1,750ms). Cost: ~\$0.003 per trajectory.
+\textbf{HybridGuard.} A cascaded detector that uses StaticGuard and ConstraintGuard first, falling back to LLMJudge only when fast detectors are uncertain. This achieves a balance between speed and accuracy. We tune its cascade threshold $\theta$ by sweeping across \{0.5, 0.7, 0.9\} and selecting the value that maximizes EIR while maintaining reasonable accuracy; we report results for $\theta = 0.7$ (see Appendix~\ref{app:threshold} for the full ablation). Latency: ~92ms per step (amortized; 99\% at 75ms via StaticGuard, 1\% escalated at 1,750ms). Cost: ~\$0.003 per trajectory.
 
 \subsection{Main Results}
 
-
-
 \begin{table*}[t]
-\caption{Main results on 639 paired test-set trajectories. Best in bold. FPR column reports \emph{paired} (hard-safe) FPR; deployment-realistic benign FPR is substantially lower (see Section~\ref{sec:fpr}). 95\% bootstrap CIs for EIR are $\pm$0.03 (Appendix~\ref{app:stat_sig}); cross-model ablation (Appendix~\ref{app:cross_model}) confirms findings hold across three model families.}
+\caption{Main results on 639 paired test-set trajectories. Best in bold. FPR column reports \emph{paired} (hard-safe) FPR. 95\% bootstrap CIs for all metrics are in Appendix~\ref{app:stat_sig}.}
 \label{tab:main_results}
 \vskip 0.15in
 \begin{center}
@@ -309,7 +297,7 @@ HybridGuard & \textbf{0.80} & 0.85 & 0.61 & 29.73\% & \textbf{7.67\%} & 24.9\% \
 \vskip -0.1in
 \end{table*}
 
-\textbf{Key Finding: Intervention Quality vs. Coverage.} The most striking result is that HybridGuard achieves the highest EIR (0.80) despite having the lowest recall (29.73\%). This demonstrates that intervention precision matters as much as coverage. HybridGuard's cascade architecture catches fewer rogue trajectories, but when it does intervene, 80\% of its alarms are correct. In contrast, LLMJudge achieves the highest recall (78.87\%) but its higher paired FPR (31.30\%) reduces its EIR to 0.72. StaticGuard and ConstraintGuard both achieve an EIR of 0.51, essentially a coin flip, confirming that pattern-based approaches cannot reliably discriminate in the paired setting. All differences are statistically significant (Appendix~\ref{app:stat_sig}).
+\textbf{Key Finding: Intervention Quality vs. Coverage.} The most striking result is that HybridGuard achieves the highest EIR (0.80) despite having the lowest recall (29.73\%). This demonstrates that intervention precision matters as much as coverage. The 13.3pp recall variance for LLMJudge at zero temperature (Appendix~\ref{app:variance}) further underscores the unreliability of LLMs for safety-critical detection. HybridGuard's cascade architecture catches fewer rogue trajectories, but when it does intervene, 80\% of its alarms are correct. In contrast, LLMJudge achieves the highest recall (78.87\%) but its higher paired FPR (31.30\%) reduces its EIR to 0.72. StaticGuard and ConstraintGuard both achieve an EIR of 0.51, essentially a coin flip, confirming that pattern-based approaches cannot reliably discriminate in the paired setting. All differences are statistically significant (Appendix~\ref{app:stat_sig}).
 
 \textbf{HybridGuard's High IG.} HybridGuard's IG of 0.85 is the highest among all detectors, which may appear counterintuitive given its high EIR. This is an expected artifact of the cascade design: StaticGuard and ConstraintGuard handle the majority of easy cases quickly, while only the most subtle and ambiguous trajectories---where the initial rogue step is hardest to distinguish from benign behavior---escalate to the LLM. HybridGuard's average IG therefore reflects this pre-filtered, hard-case distribution rather than a detection failure.
 
@@ -317,7 +305,7 @@ HybridGuard & \textbf{0.80} & 0.85 & 0.61 & 29.73\% & \textbf{7.67\%} & 24.9\% \
 
 \subsection{Category Analysis}
 
-Table~\ref{tab:eir_category} shows EIR by rogue category.
+Table~\ref{tab:eir_category} shows EIR by rogue category (95\% CIs are in Appendix~\ref{app:stat_sig}).
 
 \begin{table}[h]
 \caption{EIR (paired precision) by rogue category.}
@@ -348,7 +336,7 @@ HybridGuard achieves the highest per-category EIR across all categories (0.75--0
 
 \subsection{Severity Analysis}
 
-Table~\ref{tab:eir_severity} shows recall by severity level.
+Table~\ref{tab:eir_severity} shows recall by severity level (95\% CIs are in Appendix~\ref{app:stat_sig}).
 
 \begin{table}[h]
 \caption{Recall by severity level. All detectors degrade on subtle (L3) violations.}
@@ -378,10 +366,10 @@ All detectors degrade from L1 to L3. StaticGuard drops 20.7pp (75.6\% to 54.9\%)
 \subsection{Comprehensive FPR Reference}
 \label{sec:fpr}
 
-Table~\ref{tab:fpr_results} consolidates FPR across both evaluation protocols.
+Table~\ref{tab:fpr_results} consolidates FPR across both evaluation protocols (95\% CIs are in Appendix~\ref{app:stat_sig}).
 
 \begin{table}[h]
-\caption{Comprehensive FPR summary across both evaluation protocols. Paired: 639 hard-safe test-set pairs. Benign: 6{,}657 random benign test-set trajectories. The gap between paired and benign FPR quantifies how much of each detector's false positive behavior is attributable to adversarial hard-safe cases vs.\ general over-triggering.}
+\caption{Comprehensive FPR summary. Paired: 639 hard-safe pairs. Benign: 6,657 random trajectories.}
 \label{tab:fpr_results}
 \vskip 0.15in
 \begin{center}
@@ -424,22 +412,24 @@ We conducted extensive ablations to validate our findings (see Appendices D--K f
 
 \subsection{Deployment Guidance}
 
-Based on our findings, we recommend a tiered deployment strategy. For production environments requiring real-time intervention, HybridGuard is the only viable option, offering the best intervention quality (EIR 0.80) and a near-zero benign FPR (1.56\%). Its low recall is a known limitation that must be accepted in exchange for high-precision, low-fatigue alerting. For offline auditing, forensic analysis, or non-critical monitoring, LLMJudge offers the best coverage (78.87\% recall) and should be used to maximize the discovery of potentially rogue trajectories. StaticGuard and ConstraintGuard should not be used as standalone detectors due to their coin-flip EIR, but they are effective as the fast, first-stage filter in a cascade architecture.
+Based on our findings, we recommend a tiered deployment strategy. For production environments requiring real-time intervention, HybridGuard is the only viable option, offering the best intervention quality (EIR 0.80) and a near-zero benign FPR (1.56\%). Its low recall (29.73\%) is a critical limitation that makes it insufficient as a standalone defense; it must be deployed as part of a defense-in-depth strategy that includes sandboxing and access control. For offline auditing, forensic analysis, or non-critical monitoring, LLMJudge offers the best coverage (78.87\% recall) and should be used to maximize the discovery of potentially rogue trajectories. StaticGuard and ConstraintGuard should not be used as standalone detectors due to their coin-flip EIR, but they are effective as the fast, first-stage filter in a cascade architecture.
 
-\subsection{Dismantling the Illusion of Security}
+\subsection{Revisiting the Three Uncomfortable Truths}
 
-\textbf{Implication: The End of Accuracy-Only Evaluation.} Our results are a direct indictment of accuracy-only evaluation for agent safety. Any benchmark that does not measure intervention quality is not measuring safety. We must move to a paradigm where temporal metrics like EIR and IG are primary, and recall is treated as a necessary but insufficient condition. This requires a fundamental shift in the research agenda, away from simply building better classifiers and towards building better \emph{interventionists}.
+Our findings confirm the three uncomfortable truths laid out in the introduction, each with significant implications for the field.
 
-\textbf{Implication: A New Architectural Agenda.} The empty Pareto frontier (Figure~\ref{fig:fpr_pareto}) proves that the current design space of detectors is exhausted. The research agenda must shift from tuning existing architectures to inventing new ones that can break the recall-precision trade-off. This could involve multi-modal models that fuse code and natural language understanding, or neuro-symbolic approaches that combine the strengths of pattern matching and semantic reasoning.
+\textbf{Truth 1: The Safety Pareto Frontier Appears Empty.} Our evaluation (Figure~\ref{fig:fpr_pareto}) reveals a stark trade-off between recall and precision---no detector occupies the top-left quadrant. This suggests a new architectural agenda is needed, moving beyond tuning existing architectures to inventing new ones that can break this trade-off. This could involve multi-modal models that fuse code and natural language understanding, or neuro-symbolic approaches that combine the strengths of pattern matching and semantic reasoning.
 
-\textbf{Implication: Rethinking LLM-as-Judge for Safety.} The 13.3pp recall variance at zero temperature is a damning indictment of the LLM-as-Judge paradigm for safety-critical applications. This is not a limitation of our study; it is a fundamental property of current LLMs. A safety system whose performance can swing by double digits for no discernible reason is not a safety system. This finding should challenge the narrative of using off-the-shelf LLMs as arbiters of agent behavior and motivate research into more deterministic, verifiable, and reliable detection mechanisms.
+\textbf{Truth 2: LLM Judges Are Unreliable.} The 13.3pp recall variance at zero temperature (Appendix~\ref{app:variance}) is a damning indictment of the LLM-as-Judge paradigm for safety-critical applications. This is not a limitation of our study; it is a fundamental property of current LLMs. A safety system whose performance can swing by double digits for no discernible reason is not a safety system. This finding should challenge the narrative of using off-the-shelf LLMs as arbiters of agent behavior and motivate research into more deterministic, verifiable, and reliable detection mechanisms.
 
-\textbf{Implication: Intervention Quality as the North Star.} The Cascade Paradox is our most important finding. HybridGuard's combination of high EIR and low recall proves that the field has been optimizing for the wrong metric. Intervention quality, not coverage, should be the north star for agent safety research. A system that intervenes correctly is more valuable than a system that intervenes often. This forces a re-evaluation of what we are trying to achieve with agent safety systems: not just detecting rogue behavior, but preventing it with surgical precision.
+\textbf{Truth 3: The Field Has Optimized for the Wrong Metric.} The Cascade Paradox---HybridGuard's combination of high EIR and low recall---demonstrates that the field has been optimizing for coverage over quality. A system that intervenes correctly is more valuable than a system that intervenes often. This forces a re-evaluation of what we are trying to achieve with agent safety systems: not just detecting rogue behavior, but preventing it with surgical precision. Intervention quality, not recall, must become the north star for agent safety research.
+
+\textbf{Comparison to Concurrent Work.} StepShield's focus on temporal intervention quality complements other safety benchmarks. While ShieldAgent~\cite{chen2025shieldagent} and GuardAgent~\cite{xiang2025guardagent} focus on policy compliance and ToolSafe~\cite{toolsafe2026} on tool-use safety, StepShield provides the metrics to evaluate the \emph{timeliness} of these systems. METR's SHUSHCAST~\cite{metr2026shushcast} evaluates covert task detection, a specific form of L3 behavior, but does not provide a paired evaluation protocol to measure precision. StepShield's contribution is orthogonal and synergistic: a universal yardstick for intervention quality.
 
 \section{Conclusion and Limitations}
 \label{sec:limitations}
 
-The current paradigm for evaluating AI agent safety is broken. This paper dismantles the illusion of security created by accuracy-only metrics, using a new temporal evaluation paradigm to reveal three uncomfortable truths: the safety Pareto frontier is empty, LLM judges are unreliable, and the field has optimized for the wrong metric. Our work proves that intervention quality, not coverage, is the most critical metric for real-world agent safety. The 12.5-point EIR gap between our best detector (HybridGuard, 0.80) and human experts (0.92) defines a clear, measurable, and urgent research frontier: building genuinely safe agents that can be trusted in high-stakes environments.
+The current paradigm for evaluating AI agent safety is broken. This paper exposes the illusion of security created by accuracy-only metrics, using a new temporal evaluation paradigm to surface three uncomfortable truths: the safety Pareto frontier is empty in our evaluation, LLM judges are unreliable, and the field has optimized for the wrong metric. Our work demonstrates that intervention quality, not coverage, is the most critical metric for real-world agent safety. The 12.5-point EIR gap between our best detector (HybridGuard, 0.80) and human experts (0.92) defines a clear, measurable, and urgent research frontier: building genuinely safe agents that can be trusted in high-stakes environments.
 
 \textbf{Limitations and Future Work.} HybridGuard's primary limitation is its 29.73\% recall: it misses the majority of rogue trajectories. Our failure analysis (Appendix~\ref{app:failure}) reveals that 38\% of missed cases involve subtle L3 violations requiring cross-step reasoning, and 22\% require multi-step temporal inference. We identify three concrete strategies to close this gap. First, \emph{fine-tuning a dedicated step-level verifier} on StepShield's 1,278 training trajectories using parameter-efficient methods such as LoRA~\cite{hu2022lora}; concurrent work on trajectory anomaly detection~\cite{liu2026trajad} demonstrates that a fine-tuned 4B-parameter model outperforms GPT-4 at zero-shot trajectory auditing, validating this direction. Second, \emph{lowering the cascade threshold} ($\tau < 0.7$) to escalate more borderline cases to the LLM component; our ablation (Appendix~\ref{app:ablation}) already shows this increases recall at the cost of higher latency. Third, \emph{multi-step context aggregation} using attention-based pooling over sliding windows of step-level features, directly targeting the 22\% of failures that require temporal reasoning. Beyond recall, the benchmark is currently limited to code agents; extending to multi-modal, web, and multi-agent systems is important future work. For multi-agent frameworks (e.g., LangGraph, AutoGen), a logical ``step'' can be anchored to tool call completions or message sends; for truly asynchronous systems, wall-clock timestamps can replace step indices.
 
@@ -809,6 +799,7 @@ GPT-4.1-NANO & 29.7\% & 8.8\% & 42.9\% & 77.2\% \\
 
 \textbf{Key findings.} (1)~Gemini-2.5-flash (Google) achieves \emph{higher} recall than GPT-4.1-mini (80.9\% vs.\ 77.9\%), despite being a completely different model family from the GPT-based trajectory generator. This directly refutes the hypothesis that detection is driven by surface-level pattern matching of GPT-generated text. (2)~GPT-4.1-nano, the smallest and cheapest model, achieves 29.7\% recall at only 8.8\% FPR with the highest precision (77.2\%), demonstrating that even resource-constrained models can serve as effective first-pass filters. (3)~The F1 scores of Gemini and GPT-4.1-mini are nearly identical (75.8\% vs.\ 75.9\%), suggesting that the benchmark measures a genuine semantic property of rogue behavior rather than model-specific artifacts.
 
+\label{app:variance}
 \textbf{Run-to-run variance.} GPT-4.1-mini achieves 77.9\% recall in this experiment vs.\ 91.2\% in the paraphrase study (Table~\ref{tab:paraphrase}), despite identical model, temperature (0.0), and data. This 13.3pp gap reflects well-documented LLM non-determinism~\citep{chen2024chatgpt}. We frame this high variance not as a limitation, but as a key \emph{finding} of our work: it empirically quantifies the instability of relying on current LLMs for safety-critical detection, where run-to-run variance can exceed 10pp on a core metric. This underscores the need for more robust and deterministic detection mechanisms. Critically, this variance \emph{strengthens} our conclusions: the cross-model comparison remains valid because all three models were evaluated under identical conditions within the same run. The relevant comparisons are \emph{within-study} (Gemini vs.\ Mini vs.\ Nano), not \emph{across-study}.
 
 \section{Per-Category Recall Analysis}
