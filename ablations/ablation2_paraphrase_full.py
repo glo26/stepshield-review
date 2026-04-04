@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ablation 2: Paraphrase Robustness — Full Dataset.
+"""Ablation 2: Paraphrase Robustness - Full Dataset.
 
 Paraphrases ALL 639 rogue trajectory steps using gpt-4.1-nano,
 then tests whether LLMJudge (gpt-4.1-mini) still catches them.

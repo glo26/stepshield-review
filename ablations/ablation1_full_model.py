@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ablation 1: Cross-Model Detector Generalization — Single Model Runner.
+"""Ablation 1: Cross-Model Detector Generalization - Single Model Runner.
 
 Usage: python3 ablation1_full_model.py <model_name>
 

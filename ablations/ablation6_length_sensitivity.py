@@ -3,7 +3,7 @@
 
 Analyzes how trajectory length affects detection performance.
 Groups trajectories into length bins and computes per-bin metrics.
-FREE ablation (no API calls) — uses StaticGuard only.
+FREE ablation (no API calls) - uses StaticGuard only.
 """
 import json
 import sys

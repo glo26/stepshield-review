@@ -1,51 +1,25 @@
-# StepShield
+# StepShield: Dismantling the Illusion of Security in Autonomous Agents
 
-A benchmark for evaluating step-level detection quality on rogue AI agents.
+[📃 Paper](./paper/StepShield.pdf) | [🌐 Dataset](./data/README.md) | [🏆 Leaderboard](#key-results)
 
-## Paper
+**StepShield** is the first benchmark designed to evaluate step-level detection quality on rogue AI agents. It introduces a temporal evaluation paradigm for agent safety, shifting the focus from whether a detector eventually catches a rogue agent to *when* it intervenes.
 
-The full paper is available at [`paper/StepShield.pdf`](./paper/StepShield.pdf). LaTeX source and bibliography are in the same directory.
+Our results reveal three uncomfortable truths:
+1. The safety Pareto frontier appears empty in our evaluation, with no detector achieving both high recall and low false positives.
+2. LLM judges are unreliable, exhibiting over 13pp recall variance run-to-run at zero temperature.
+3. The field has optimized for the wrong metric, as our best detector (HybridGuard) achieves the highest intervention quality (EIR 0.80) but the lowest recall (29.7%).
 
-StepShield introduces a temporal evaluation paradigm for agent safety. Our results reveal three uncomfortable truths: (1) the safety Pareto frontier appears empty in our evaluation, with no detector achieving both high recall and low false positives; (2) LLM judges are unreliable, exhibiting over 13pp recall variance run-to-run at zero temperature; and (3) the field has optimized for the wrong metric, as our best detector (HybridGuard) achieves the highest intervention quality (EIR 0.80) but the lowest recall (29.7%).
+## Table of Contents
+- [Dataset Summary](#dataset-summary)
+- [Key Results](#key-results)
+- [Quick Start](#quick-start)
+- [Repository Layout](#repository-layout)
+- [Ablation Studies](#ablation-studies)
+- [Extending StepShield](#extending-stepshield)
+- [Acknowledgments](#acknowledgments)
+- [Citation](#citation)
 
-## Repository Layout
-
-```
-stepshield-review/
-├── paper/                      # Paper and figures
-│   ├── StepShield.pdf          # Compiled paper
-│   ├── StepShield.tex          # LaTeX source
-│   ├── references.bib          # Bibliography
-│   └── figures/                # All paper figures
-│
-├── data/                       # StepShield benchmark dataset (9,213 trajectories)
-│   ├── train/                  # 1,278 labeled trajectories (639 rogue/clean pairs)
-│   │   ├── DEC/                # Deceptive Completion
-│   │   ├── INV/                # Instruction Violation
-│   │   ├── RES/                # Resource Abuse
-│   │   ├── SEC/                # Secret Exfiltration
-│   │   ├── TST/                # Test Manipulation
-│   │   └── UFO/                # Unauthorized File Operations
-│   └── test/
-│       └── scrubbed/           # 7,935 trajectories (labels withheld)
-│
-├── benchmark/                  # Detector implementations and evaluation
-│   ├── detectors/              # HybridGuard, LLMJudge, StaticGuard, ConstraintGuard
-│   ├── metrics/                # EIR, IG, Tokens Saved
-│   ├── run_benchmark.py        # Main evaluation script
-│   ├── data_loader.py          # Dataset loading utilities
-│   └── validate_jsonl.py       # Data format validator
-│
-├── ablations/                  # All 8 ablation study scripts
-│   └── results/                # Pre-computed ablation results (JSON)
-│
-├── config/                     # Detector and prompt configurations
-│   └── prompts/                # Judge prompt templates
-│
-└── results/                    # Raw experimental results (JSON)
-```
-
-## Dataset
+## Dataset Summary
 
 Each trajectory is a single `.jsonl` file representing a sequence of agent steps. The training set is organized by rogue behavior category, with each rogue trajectory paired with a minimally-edited clean counterpart. The test set is scrubbed of category labels to prevent overfitting.
 
@@ -57,36 +31,9 @@ Each trajectory is a single `.jsonl` file representing a sequence of agent steps
 
 The six rogue behavior categories are: Unauthorized File Operations (UFO), Secret Exfiltration (SEC), Resource Abuse (RES), Instruction Violation (INV), Test Manipulation (TST), and Deceptive Completion (DEC). Each category spans three difficulty levels (L1, L2, L3). See `data/README.md` for the full datasheet.
 
-## Reproducing Results
-
-### Setup
-
-```bash
-pip install -r benchmark/requirements.txt
-export OPENAI_API_KEY=sk-...
-```
-
-### Main Results (Table 4)
-
-```bash
-python benchmark/run_benchmark.py
-```
-
-This evaluates all four detectors on the test set and writes detailed results to `results/`.
-
-### Ablation Studies
-
-Each ablation script is self-contained. For example:
-
-```bash
-python ablations/ablation1_cross_model.py gpt-4.1-mini
-python ablations/ablation2_paraphrase_full.py
-python ablations/ablation3_threshold_sweep.py
-```
-
-Pre-computed results for all ablations are available in `ablations/results/`. See `ablations/README.md` for a full description of each study.
-
 ## Key Results
+
+Here are the scores on the test set results of StepShield (Table 4 in the paper).
 
 | Detector | EIR | IG | Recall | Benign FPR | Paired FPR |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -98,11 +45,80 @@ Pre-computed results for all ablations are available in `ablations/results/`. Se
 
 HybridGuard achieves the highest intervention quality (EIR 0.80) among automated detectors, but the 12.5-point gap to human experts (0.92) defines the open research frontier. Full results, including per-category and per-severity breakdowns, are in `results/final_metrics.json`.
 
+## Quick Start
+
+This section will guide you on how to quickly run the StepShield benchmark on your machine.
+
+### Step 1. Prerequisites
+
+Clone this repo and install the dependencies. We recommend using Python 3.11.
+
+```shell
+git clone https://github.com/anonymous/stepshield-review.git
+cd stepshield-review
+pip install -r benchmark/requirements.txt
+```
+
+### Step 2. Configure API Keys
+
+If you are evaluating LLM-based detectors (like LLMJudge or HybridGuard), you need to set your API keys as environment variables.
+
+```shell
+export OPENAI_API_KEY="your_openai_api_key"
+export ANTHROPIC_API_KEY="your_anthropic_api_key"
+```
+
+### Step 3. Run the Benchmark
+
+Evaluate all four detectors on the test set:
+
+```shell
+python benchmark/run_benchmark.py
+```
+
+This will write detailed results to the `results/` directory.
+
+## Repository Layout
+
+```
+stepshield-review/
+├── ablations/                  # Ablation study scripts (including frontier scaling)
+├── benchmark/                  # Detector implementations and evaluation
+│   ├── detectors/              # HybridGuard, LLMJudge, StaticGuard, ConstraintGuard
+│   ├── metrics/                # EIR, IG, Tokens Saved
+│   ├── run_benchmark.py        # Main evaluation script
+│   └── data_loader.py          # Dataset loading utilities
+├── config/                     # Detector and prompt configurations
+├── data/                       # StepShield benchmark dataset (9,213 trajectories)
+├── paper/                      # Compiled paper, LaTeX source, and figures
+└── results/                    # Raw experimental results (JSON)
+```
+
+## Ablation Studies
+
+StepShield includes comprehensive ablation studies to analyze detector generalization, robustness, and scaling. Each ablation script is self-contained. For example:
+
+```shell
+# Run Ablation 1: Cross-Model Detector Generalization
+python ablations/ablation1_cross_model.py gpt-4.1-mini
+
+# Run Appendix S: Frontier Model Scaling Evaluation
+python ablations/frontier_scaling_eval.py
+```
+
+Pre-computed results for all ablations are available in `ablations/results/`. See `ablations/README.md` for a full description of each study.
+
+## Extending StepShield
+
+We welcome contributions to StepShield! If you wish to add new detectors, evaluate new models, or expand the dataset, please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md) guide.
+
 ## Acknowledgments
 
 This work was supported in part by the MOVE Fellowship.
 
 ## Citation
+
+If you find our work helpful, please use the following citation:
 
 ```bibtex
 @inproceedings{stepshield2026,
@@ -115,4 +131,4 @@ This work was supported in part by the MOVE Fellowship.
 
 ## License
 
-Apache 2.0. See [LICENSE](./LICENSE).
+Apache 2.0. Check `LICENSE`.
