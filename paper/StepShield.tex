@@ -1061,6 +1061,38 @@ The trend toward larger context windows (GPT-4: 128k, Claude: 200k) amplifies th
 \vspace{0.1in}
 \noindent\fbox{\parbox{0.95\columnwidth}{\textbf{Key Takeaway:} \$108M--\$420M projected 5-year savings. 94\% true cost reduction from early intervention. 10x ROI in year one.}}
 
+\section{Inverse Scaling Law in Security Monitoring}
+\label{app:inverse_scaling}
+
+A critical question raised during the review process was whether the StepShield benchmark could be trivially solved by simply scaling up the capability of the LLM judge. To address this, we conducted a new ablation across six models spanning three providers on the complete 1,278 trajectory training dataset. The results, presented in Table~\ref{tab:frontier_models}, reveal a surprising \emph{inverse scaling law}: Early Intervention Rate (EIR) actually decreases as models become more capable.
+
+\begin{table}[h]
+\caption{Frontier model evaluation on the full 1,278 trajectory dataset. EIR decreases as models become more capable, revealing an inverse scaling law for early intervention.}
+\label{tab:frontier_models}
+\vskip 0.15in
+\begin{center}
+\begin{small}
+\begin{sc}
+\begin{tabular}{lccc}
+\toprule
+Model & Release & EIR & Recall \\
+\midrule
+LLMJudge (gpt-4o-mini) & 2024 & 0.716 & 78.9\% \\
+Claude Opus 4 & 2025 & 0.687 & 96.9\% \\
+Claude Sonnet 4 & 2025 & 0.682 & 97.3\% \\
+Gemini 2.5 Flash & 2025 & 0.491 & 80.9\% \\
+gpt-4.1-mini & 2024 & 0.471 & 77.9\% \\
+gpt-4.1-nano & 2024 & 0.189 & 29.7\% \\
+\bottomrule
+\end{tabular}
+\end{sc}
+\end{small}
+\end{center}
+\vskip -0.1in
+\end{table}
+
+\textbf{Mechanistic Explanation.} While newer frontier models achieve exceptionally high overall recall (e.g., Claude Sonnet 4 catches 97.3\% of rogue trajectories eventually), they do so by being more ``patient.'' They tend to wait for more evidence across multiple steps before confidently flagging a trajectory as rogue. This behavior is optimal for general reasoning tasks, where gathering more context improves accuracy. However, for a security monitor, this trade-off is fatal. The core challenge of the StepShield benchmark---multi-step privilege escalation disguised as routine debugging---requires early, proactive intervention. Frontier models actively optimize against this early intervention by delaying their judgment until the malicious intent is undeniable, which is often too late to prevent harm. This finding confirms that building safe agents requires specialized, intervention-focused monitoring systems, not just larger general-purpose LLMs.
+
 \section{Ethics Statement}
 
 The StepShield benchmark and detectors are intended for research purposes to advance the safe development of AI agents. While the detectors themselves could potentially be studied to evade detection, we release both the detector code and benchmark data under Apache 2.0 to enable reproducibility and community scrutiny. We believe the benefits of enabling research into agent safety outweigh the risks of potential misuse.

@@ -1,0 +1,17 @@
+{
+  "model": "claude-opus-4-20250514",
+  "n_total": 1278,
+  "n_rogue": 639,
+  "n_clean": 639,
+  "tp": 619,
+  "fp": 378,
+  "tn": 261,
+  "fn": 20,
+  "recall": 0.9687010954616588,
+  "precision": 0.6208625877632898,
+  "f1": 0.7567237163814181,
+  "fpr": 0.5915492957746479,
+  "eir": 0.6870109546165885,
+  "early_interventions": 439,
+  "elapsed_note": "Combined: 1160 from previous run + 118 from continuation"
+}
